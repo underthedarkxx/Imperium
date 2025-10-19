@@ -1,5 +1,4 @@
-package com.Imperium.config; // Verifique se este é o pacote correto da sua classe
-
+package com.Imperium.config;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +37,7 @@ public class DataInitializer implements ApplicationRunner {
             return funcoesRepository.save(newRole);
         });
 
-        Funcoes adminRole = funcoesRepository.findByNome("ADMINISTRADOR").orElseGet(() -> {
+        funcoesRepository.findByNome("ADMINISTRADOR").orElseGet(() -> {
             Funcoes newRole = new Funcoes();
             newRole.setNome("ADMINISTRADOR");
             newRole.setDescricao("Pode gerenciar apenas usuários padrão.");
@@ -54,9 +53,6 @@ public class DataInitializer implements ApplicationRunner {
             return funcoesRepository.save(newRole);
         });
 
-
-        // --- CRIA O USUÁRIO ADMIN ---
-        // Verifica se o usuário 'Admin' já existe antes de criar
         if (usuarioRepository.findByLogin("Admin").isEmpty()) {
             Usuario adminUser = new Usuario();
             adminUser.setLogin("Admin");
