@@ -1,3 +1,4 @@
+-- Active: 1743547430456@@127.0.0.1@3306@Imperium
 -- Remove o usuário e o banco de dados antigos para um ambiente limpo
 DROP USER IF EXISTS 'Admin'@'localhost';
 DROP DATABASE IF EXISTS Imperium;
@@ -8,7 +9,7 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
 -- Cria o usuário e concede as permissões
-CREATE USER IF NOT EXISTS 'Admin'@'localhost' IDENTIFIED BY 'Admin';
+CREATE USER IF NOT EXISTS 'Admin'@'localhost' IDENTIFIED BY 'Admin123*';
 GRANT ALL PRIVILEGES ON Imperium.* TO 'Admin'@'localhost';
 FLUSH PRIVILEGES;
 

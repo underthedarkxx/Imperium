@@ -26,14 +26,14 @@ public class DataInitializer implements CommandLineRunner{
     @Override
     @Transactional
     public void run(String... args) throws Exception{
-        Funcoes adminRole = criarFuncaoSeNaoExistir("ADMINISTRADOR_PRINCIPAL", "Gerencia tudo");
-        criarFuncaoSeNaoExistir("ADMINISTRADOR", "Gerencia usuários padrão");
-        criarFuncaoSeNaoExistir("Usuario_Padrao", "Acesso Basico");
+        Funcoes adminRole = criarFuncaoSeNaoExistir("ROLE_ADMINISTRADOR_PRINCIPAL", "Gerencia tudo");
+        criarFuncaoSeNaoExistir("ROLE_ADMINISTRADOR", "Gerencia usuários padrão");
+        criarFuncaoSeNaoExistir("ROLE_Usuario_Padrao", "Acesso Basico");
 
         if(usuarioRepository.findByLogin("Admin").isEmpty()){
             Usuario adminUsuario = new Usuario();
             adminUsuario.setLogin("Admin");
-            adminUsuario.setSenha(passwordEncoder.encode("Admin"));
+            adminUsuario.setSenha(passwordEncoder.encode("Admin123*"));
 
             adminUsuario.setFuncao(adminRole);
 

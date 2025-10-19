@@ -1,0 +1,87 @@
+### ===============================================================
+### SUÍTE DE TESTES PARA A API IMPERIUM
+### ===============================================================
+
+### Variáveis Globais
+@host = http://localhost:8080
+@jwt_token = 
+
+################################################################
+### 1. AUTENTICAÇÃO - Realizar login como Administrador
+# O DataInitializer criou o usuário 'Admin' com a senha 'Admin123!'.
+# Este request irá fazer o login e salvar o token JWT na variável @jwt_token.
+
+# @name loginRequest
+POST {{host}}/api/login
+Content-Type: application/json
+
+{
+    "login": "Admin",
+    "senha": "Admin123*"
+}
+
+@jwt_token = {{loginRequest.response.body.token}}
+
+################################################################
+### 2. FUNÇÕES - Listar os cargos disponíveis
+# (Este é o teste que você já tinha)
+# Usamos o token salvo para listar as funções disponíveis.
+
+GET {{host}}/api/funcoes
+Authorization: Bearer {{jwt_token}}
+
+
+################################################################
+### 3. CRIAR USUÁRIO - Teste de Sucesso (com autenticação)
+# (Este é o teste que você já tinha)
+# Simula o Admin criando um novo usuário com a função de "USUARIO_PADRAO" (ID 3).
+# @name criarUsuarioRequest
+POST {{host}}/api/admin/usuarios
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "login": "ana.silva",
+    "senha": "senha123",
+    "funcaoId": 3
+}
+
+################################################################
+### 4. CRIAR USUÁRIO - Teste de Falha (sem autenticação)
+# (Este é o teste que você já tinha)
+# Tenta criar um usuário sem o token JWT.
+# Deve falhar com um erro 403 Forbidden.
+
+POST {{host}}/api/admin/usuarios
+Content-Type: application/json
+
+{
+    "login": "usuario.nao.autorizado",
+    "senha": "senha456",
+    "funcaoId": 3
+}
+
+################################################################
+### 5. LISTAR USUÁRIOS
+# Lista todos os usuários cadastrados.
+# OBS: Este endpoint precisa ser criado no seu AdminController.
+# Ex: @GetMapping no AdminController que retorna usuarioRepository.findAll()
+
+GET {{host}}/api/admin/usuarios
+Authorization: Bearer {{jwt_token}}
+
+
+################################################################
+### 6. TESTES DE ERRO
+# Tenta criar um usuário com um ID de função que não existe.
+# Deve falhar com um erro (ex: 404 Not Found ou 500 Internal Server Error).
+
+POST {{host}}/api/admin/usuarios
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "login": "teste.erro",
+    "senha": "senha123",
+    "funcaoId": 999
+}
