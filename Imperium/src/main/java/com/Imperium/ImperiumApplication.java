@@ -1,4 +1,4 @@
-package com.Imperium.Imperium;
+package com.Imperium;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
