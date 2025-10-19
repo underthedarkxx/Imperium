@@ -88,3 +88,8 @@ body {
     top: 20px;
     right: 20px;
 }
+
+.modal-header-aviso {
+    background-color: #dc3545; /* Vermelho do Bootstrap */
+    color: white;
+}

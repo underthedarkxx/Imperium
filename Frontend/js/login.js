@@ -19,7 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Falha no login:', error);
-            alert(error.message); // Exibe a mensagem de erro vinda da API
+            // Seleciona o elemento do modal
+            const erroModalElement = document.getElementById('erroLoginModal');
+            // Cria uma instância do modal do Bootstrap
+            const erroModal = new bootstrap.Modal(erroModalElement);
+
+            // Define a mensagem de erro vinda da API
+            document.getElementById('mensagemErroModal').textContent = error.message;
+
+            // Mostra o modal
+            erroModal.show();
         }
     });
 });
