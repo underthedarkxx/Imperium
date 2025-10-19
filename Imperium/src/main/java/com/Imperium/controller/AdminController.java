@@ -21,11 +21,9 @@ import com.Imperium.service.UsuarioService;
 @RequestMapping("/api/admin/usuarios")
 public class AdminController {
     
-    private final UsuarioService usuarioService;
     private final UsuarioRepository usuarioRepository;
 
-    public AdminController(UsuarioService usuarioService, UsuarioRepository usuarioRepository) {
-        this.usuarioService = usuarioService;
+    public AdminController(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
     
