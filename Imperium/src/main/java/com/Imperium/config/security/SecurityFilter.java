@@ -21,9 +21,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final AuthenticationService authenticationService; // <-- MUDANÇA 1
+    private final AuthenticationService authenticationService;
 
-    // Injeção via construtor
+    // Construtor para injetar os serviços
     public SecurityFilter(TokenService tokenService, AuthenticationService authenticationService) {
         this.tokenService = tokenService;
         this.authenticationService = authenticationService;
@@ -36,9 +36,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (tokenJWT != null) {
             var subject = tokenService.validarToken(tokenJWT);
             if (subject != null && !subject.isEmpty()) {
-                // MUDANÇA 2: Usando o AuthenticationService para carregar o usuário
                 UserDetails usuario = authenticationService.loadUserByUsername(subject);
-
                 var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

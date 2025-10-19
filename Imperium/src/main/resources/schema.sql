@@ -43,3 +43,9 @@ INSERT INTO funcoes (nome, descricao) VALUES
 ('ADMINISTRADOR', 'Pode gerenciar apenas usuários padrão.'),
 ('USUARIO_PADRAO', 'Acesso básico ao sistema.');
 
+SELECT f.nome 
+FROM funcoes f
+JOIN Usuario u ON u.id_Funcao = f.id_funcao
+WHERE u.login = 'Admin';
+
+SELECT * FROM Usuario;

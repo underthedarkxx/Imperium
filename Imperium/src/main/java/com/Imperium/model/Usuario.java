@@ -49,7 +49,7 @@ public class Usuario implements UserDetails {
         if (this.funcao == null) {
             return List.of();
         }
-        return List.of(new SimpleGrantedAuthority(funcao.getNome()));
+    return List.of(new SimpleGrantedAuthority("ROLE_" + funcao.getNome().toUpperCase()));
     }
 
     @Override

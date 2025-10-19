@@ -1,9 +1,9 @@
-package com.Imperium.config;
+package com.Imperium.config; // Verifique se este é o pacote correto da sua classe
 
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.Imperium.model.Funcoes;
 import com.Imperium.model.Usuario;
@@ -11,43 +11,65 @@ import com.Imperium.repository.FuncoesRepository;
 import com.Imperium.repository.UsuarioRepository;
 
 @Component
-public class DataInitializer implements CommandLineRunner{
+public class DataInitializer implements ApplicationRunner {
 
-    private final UsuarioRepository usuarioRepository;
     private final FuncoesRepository funcoesRepository;
+    private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(UsuarioRepository usuarioRepository, FuncoesRepository funcoesRepository ,PasswordEncoder passwordEncoder) {
-        this.usuarioRepository = usuarioRepository;
+    // O Spring vai injetar automaticamente as dependências que você precisa
+    public DataInitializer(FuncoesRepository funcoesRepository, UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.funcoesRepository = funcoesRepository;
+        this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    @Transactional
-    public void run(String... args) throws Exception{
-        Funcoes adminRole = criarFuncaoSeNaoExistir("ROLE_ADMINISTRADOR_PRINCIPAL", "Gerencia tudo");
-        criarFuncaoSeNaoExistir("ROLE_ADMINISTRADOR", "Gerencia usuários padrão");
-        criarFuncaoSeNaoExistir("ROLE_Usuario_Padrao", "Acesso Basico");
+    public void run(ApplicationArguments args) throws Exception {
+        System.out.println(">>> [DataInitializer] INICIANDO A VERIFICAÇÃO/INSERÇÃO DE DADOS INICIAIS...");
 
-        if(usuarioRepository.findByLogin("Admin").isEmpty()){
-            Usuario adminUsuario = new Usuario();
-            adminUsuario.setLogin("Admin");
-            adminUsuario.setSenha(passwordEncoder.encode("Admin123*"));
-
-            adminUsuario.setFuncao(adminRole);
-
-            usuarioRepository.save(adminUsuario);
-            System.out.println(">>> Usuário Admin criado com sucesso!");
-        }
-    }
-
-    private Funcoes criarFuncaoSeNaoExistir(String nome, String descricao){
-        return funcoesRepository.findByNome(nome).orElseGet(() -> {
-            Funcoes novaFuncao = new Funcoes();
-            novaFuncao.setNome(nome);
-            novaFuncao.setDescricao(descricao);
-            return funcoesRepository.save(novaFuncao);
+        // --- CRIA AS FUNÇÕES (ROLES) ---
+        // Busca a role, e se não encontrar, cria uma nova.
+        Funcoes adminPrincipalRole = funcoesRepository.findByNome("ADMINISTRADOR_PRINCIPAL").orElseGet(() -> {
+            Funcoes newRole = new Funcoes();
+            newRole.setNome("ADMINISTRADOR_PRINCIPAL");
+            newRole.setDescricao("Pode gerenciar administradores e usuários.");
+            System.out.println(">>> [DataInitializer] Criando role: ADMINISTRADOR_PRINCIPAL");
+            return funcoesRepository.save(newRole);
         });
+
+        Funcoes adminRole = funcoesRepository.findByNome("ADMINISTRADOR").orElseGet(() -> {
+            Funcoes newRole = new Funcoes();
+            newRole.setNome("ADMINISTRADOR");
+            newRole.setDescricao("Pode gerenciar apenas usuários padrão.");
+            System.out.println(">>> [DataInitializer] Criando role: ADMINISTRADOR");
+            return funcoesRepository.save(newRole);
+        });
+
+        funcoesRepository.findByNome("USUARIO_PADRAO").orElseGet(() -> {
+            Funcoes newRole = new Funcoes();
+            newRole.setNome("USUARIO_PADRAO");
+            newRole.setDescricao("Acesso básico ao sistema.");
+            System.out.println(">>> [DataInitializer] Criando role: USUARIO_PADRAO");
+            return funcoesRepository.save(newRole);
+        });
+
+
+        // --- CRIA O USUÁRIO ADMIN ---
+        // Verifica se o usuário 'Admin' já existe antes de criar
+        if (usuarioRepository.findByLogin("Admin").isEmpty()) {
+            Usuario adminUser = new Usuario();
+            adminUser.setLogin("Admin");
+            // CRIPTOGRAFA A SENHA ANTES DE SALVAR!
+            adminUser.setSenha(passwordEncoder.encode("Admin123*"));
+            adminUser.setFuncao(adminPrincipalRole);
+            
+            usuarioRepository.save(adminUser);
+            System.out.println(">>> [DataInitializer] Usuário 'Admin' criado com sucesso.");
+        } else {
+            System.out.println(">>> [DataInitializer] Usuário 'Admin' já existe.");
+        }
+
+        System.out.println(">>> [DataInitializer] DADOS INICIAIS VERIFICADOS/INSERIDOS. <<<");
     }
 }

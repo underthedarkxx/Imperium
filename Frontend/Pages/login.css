@@ -1,19 +1,90 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-
+body {
+    
+    background: radial-gradient(ellipse at center, #0d2a58 0%, #255dbe 100%);
+    
+    color: #4a4a4a;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100vh;
 }
 
-
-
-.box-login{
-    display: flex;
-    flex-direction: column;
-
+/* Caixa de login principal */
+.login-box {
+    width: 100%;
+    max-width: 400px; /* Largura máxima da caixa */
+    background-color: #e9ecef; /* Fundo cinza claro */
+    border-radius: 10px; /* Cantos arredondados */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidade */
+    overflow: hidden; /* Garante que o header não "vaze" */
 }
 
-.form-control{
+/* Cabeçalho da caixa de login */
+.login-header {
+    background-color: #031531; /* Azul ainda mais escuro para o cabeçalho */
+    color: white;
+}
 
-    width: 1px;
+/* Estilo da fonte "IMPERIUM" */
+.imperium-title {
+    font-family: 'Cinzel', serif; /* Usando a fonte importada */
+    font-weight: 700;
+    font-size: 1.8rem;
+    vertical-align: middle;
+}
+
+/* Estilo para os labels "NOME:" e "SENHA:" */
+.form-label {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* Botão customizado "ENTRAR" */
+.btn-entrar {
+    background-color: #1a8a44; /* Verde do botão */
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-entrar:hover {
+    background-color: #156d36; /* Verde um pouco mais escuro ao passar o mouse */
+    color: white;
+}
+
+/* Formas decorativas no fundo */
+.shape {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.05); /* Cor levemente transparente */
+    width: 280px; /* Aumentei um pouco a largura para ter mais espaço */
+    height: 160px; /* Ajustei a altura para a proporção da imagem */
+    /* Use border-radius para os cantos arredondados */
+    border-radius: 20px; /* Experimente valores maiores ou menores */
+    
+    /* A mágica do formato de hexágono */
+    /* Este clip-path ainda cria a forma hexagonal, mas o border-radius suaviza o "corte" */
+    clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+
+    /* Adicionei uma cor de fundo sólida para teste, você pode mudar para o rgba desejado */
+    background-color: #20498f; /* Um azul mais forte como na sua imagem */
+}
+
+.shape-top-right {
+    top: 20px;
+    right: 10%;
+}
+
+.shape-bottom-left {
+    bottom: 10%;
+    left: 10%;
+}
+
+.logo-corner {
+    position: absolute;
+    top: 20px;
+    right: 20px;
 }

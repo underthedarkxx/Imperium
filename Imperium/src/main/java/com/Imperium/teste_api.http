@@ -4,7 +4,7 @@
 
 ### Variáveis Globais
 @host = http://localhost:8080
-@jwt_token = 
+@jwt_token =
 
 ################################################################
 ### 1. AUTENTICAÇÃO - Realizar login como Administrador
@@ -85,3 +85,25 @@ Authorization: Bearer {{jwt_token}}
     "senha": "senha123",
     "funcaoId": 999
 }
+
+################################################################
+### 7. ATUALIZAR USUÁRIO
+# Altera a senha e a função do usuário 'ana.silva' (ID 2).
+# Transforma 'ana.silva' em um ADMINISTRADOR.
+
+PUT {{host}}/api/admin/usuarios/2
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+    "senha": "novaSenhaSuperForte123",
+    "funcaoId": 2
+}
+
+################################################################
+### 8. DESATIVAR UM USUÁRIO (Deleção Lógica)
+# Envia uma requisição DELETE para desativar o usuário com ID 2.
+# Apenas usuários com a role 'ROLE_ADMINISTRADOR_PRINCIPAL' podem fazer isso.
+
+DELETE {{host}}/api/admin/usuarios/2
+Authorization: Bearer {{jwt_token}}
