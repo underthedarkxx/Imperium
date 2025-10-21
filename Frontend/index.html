@@ -1,21 +1,659 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Imperium (Demo)</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  </head>
-  <body class="bg-">
-    <nav class="navbar p-3 mb-2 bg-dark border-bottom border-body">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-            <img src="/Frontend/img/Tá de olho em nóis da silva.png" alt="Bootstrap" width="30" height="24">
-            </a>
-        </div>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Funcionários - IMPERIUM</title>
+
+  <!-- Bootstrap CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body{ background: #f8f9fa; }
+    nav { background: linear-gradient(135deg, #144BB7, #0F3684,#092151, #0C2B6B); }
+    .pn{ background: #f8f9fa; }
+    .active-view{ display: block; }
+    .view{ display: none; }
+    .card-title{ text-transform: capitalize; }
+    .pagination .page-link{ cursor: pointer; }
+    .btn-xs{ padding: .25rem .5rem; font-size: .75rem; }
+    .table-hover tbody tr:hover{ background: rgba(0,0,0,0.03); }
+
+    /* Overlay escurecido */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .25s ease;
+      z-index: 1040;
+    }
+    #overlay.show { opacity: 1; visibility: visible; }
+
+    /* Painel lateral (slide-in) - 60% */
+    #sidePanel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 60vw;
+      max-width: 1100px;
+      background: #fff;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.2);
+      transform: translateX(100%);
+      transition: transform .28s cubic-bezier(.2,.9,.3,1);
+      z-index: 1050;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #sidePanel.open { transform: translateX(0); }
+
+    #sidePanel .panel-header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #fff;
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    @media (max-width: 768px) {
+      #sidePanel { width: 100vw; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" onclick="navigateTo('list')">IMPERIUM</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item me-2">
+          <button class="btn btn-light btn-sm" onclick="navigateTo('list')">Equipe</button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-success btn-sm" onclick="navigateTo('add')">Cadastrar Funcionário</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+
+  <!-- LIST VIEW -->
+  <section id="view-list" class="view active-view">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Equipe</h2>
+      <div>
+        <input id="searchInput" class="form-control form-control-sm" style="width:260px; display:inline-block" placeholder="Buscar por nome, email ou cargo..." oninput="onSearchInput()">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover" id="funcTable">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Cargo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="funcTbody"></tbody>
+      </table>
+    </div>
+
+    <nav class="pn">
+      <ul id="pagination" class="pagination justify-content-center"></ul>
     </nav>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
-  </body>
+  </section>
+
+  <!-- ADD VIEW -->
+  <section id="view-add" class="view">
+    <div>
+      <h2>Cadastrar Funcionário</h2>
+      <form id="formAdd" class="mt-3" onsubmit="submitAdd(event)">
+        <div class="mb-3">
+          <label for="addNome" class="form-label">Nome</label>
+          <input type="text" id="addNome" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="addEmail" class="form-label">Email</label>
+          <input type="email" id="addEmail" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="addTelefone" class="form-label">Telefone</label>
+          <input type="text" id="addTelefone" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="addSenha" class="form-label">Senha</label>
+          <input type="password" id="addSenha" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="addCargo" class="form-label">Cargo</label>
+          <select id="addCargo" class="form-control" required>
+            <option value="relacionamento">Relacionamento</option>
+            <option value="recrutamento">Recrutamento</option>
+            <option value="vendas">Vendas</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+
+        <button class="btn btn-success">Cadastrar</button>
+        <button type="button" class="btn btn-secondary" onclick="navigateTo('list')">Cancelar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- EDIT VIEW -->
+  <section id="view-edit" class="view">
+    <div>
+      <h2>Editar Funcionário</h2>
+      <form id="formEdit" class="mt-3" onsubmit="submitEdit(event)">
+        <input type="hidden" id="editId">
+        <div class="mb-3">
+          <label for="editNome" class="form-label">Nome</label>
+          <input type="text" id="editNome" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="editEmail" class="form-label">Email</label>
+          <input type="email" id="editEmail" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="editTelefone" class="form-label">Telefone</label>
+          <input type="text" id="editTelefone" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="editSenha" class="form-label">Senha</label>
+          <input type="password" id="editSenha" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="editCargo" class="form-label">Cargo</label>
+          <select id="editCargo" class="form-control" required>
+            <option value="relacionamento">Relacionamento</option>
+            <option value="recrutamento">Recrutamento</option>
+            <option value="vendas">Vendas</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <button class="btn btn-primary">Salvar</button>
+        <button type="button" class="btn btn-secondary" onclick="navigateTo('list')">Cancelar</button>
+      </form>
+    </div>
+  </section>
+
+</div> <!-- /container -->
+
+<!-- Overlay + Side Panel (perfil) -->
+<div id="overlay" onclick="closeSidePanel()"></div>
+
+<aside id="sidePanel" aria-hidden="true">
+  <div class="panel-header d-flex align-items-center justify-content-between">
+    <div>
+      <h5 id="panelTitle" class="mb-0">Perfil</h5>
+      <small id="panelSubtitle" class="text-muted">Informações do funcionário</small>
+    </div>
+    <div>
+      <button class="btn btn-outline-secondary btn-sm me-2" id="editFromPanelBtn" onclick="">
+        <i class="bi bi-pencil"></i> Editar
+      </button>
+      <button class="btn btn-outline-warning btn-sm me-2" id="toggleActiveBtn" onclick="">
+        <!-- label atualizado dinamicamente -->
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="onDelete(currentProfileId)">Excluir ✕</button>
+    </div>
+  </div>
+
+  <div class="p-4">
+    <div class="card mb-3 shadow-sm">
+      <div class="card-body">
+        <h4 class="card-title" id="profileNome">Nome</h4>
+        <p class="mb-1"><strong>Email:</strong> <span id="profileEmail"></span></p>
+        <p class="mb-1"><strong>Telefone:</strong> <span id="profileTelefone"></span></p>
+        <p class="mb-0"><strong>Cargo:</strong> <span id="profileCargo"></span></p>
+        <p class="mb-0"><strong>Status:</strong> <span id="profileStatus"></span></p>
+      </div>
+    </div>
+
+    <ul class="nav nav-pills mb-3" id="profileTabs" role="tablist"></ul>
+    <div id="profileTabContent" class="tab-content"></div>
+
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-outline-primary" onclick="openResetPasswordModal()">Redefinir senha</button>
+      <button class="btn btn-outline-secondary" onclick="editFromPanel()">Editar</button>
+      <button class="btn btn-outline-danger" onclick="onDelete(currentProfileId)">Excluir</button>
+    </div>
+  </div>
+</aside>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPwdModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" onsubmit="confirmResetPassword(event)">
+      <div class="modal-header">
+        <h5 class="modal-title">Redefinir senha</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Nova senha</label>
+          <input id="newPassword" type="password" class="form-control" required minlength="4">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Confirmar nova senha</label>
+          <input id="newPasswordConfirm" type="password" class="form-control" required minlength="4">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Bootstrap bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+/* SPA + Panel full implementation 
+   - painel lateral com overlay
+   - editar a partir do painel
+   - reset de senha via modal
+   - ativar/desativar
+   - pushState para controlar fechar com "voltar"
+*/
+
+const PAGE_SIZE = 5;
+let currentView = 'list';
+let currentPage = 1;
+let currentQuery = '';
+let currentProfileId = null;
+
+// Helpers de persistência
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function getFuncs() { const raw = localStorage.getItem('funcionarios'); return raw ? JSON.parse(raw) : seedData(); }
+function saveFuncs(arr) { localStorage.setItem('funcionarios', JSON.stringify(arr)); }
+
+function seedData() {
+  const sample = [
+    {id: uid(), nome: 'ana silva', email: 'ana@example.com', telefone: '27999990001', senha:'123456', cargo:'relacionamento', ativo:true},
+    {id: uid(), nome: 'bruno costa', email: 'bruno@example.com', telefone: '27999990002', senha:'123456', cargo:'recrutamento', ativo:true},
+    {id: uid(), nome: 'carla melo', email: 'carla@example.com', telefone: '27999990003', senha:'123456', cargo:'vendas', ativo:true},
+    {id: uid(), nome: 'diego alves', email: 'diego@example.com', telefone: '27999990004', senha:'123456', cargo:'admin', ativo:true},
+    {id: uid(), nome: 'eduarda ribeiro', email: 'eduarda@example.com', telefone: '27999990005', senha:'123456', cargo:'vendas', ativo:true},
+    {id: uid(), nome: 'felipe moreira', email: 'felipe@example.com', telefone: '27999990006', senha:'123456', cargo:'relacionamento', ativo:true},
+    {id: uid(), nome: 'gabriela costa', email: 'gabi@example.com', telefone: '27999990007', senha:'123456', cargo:'recrutamento', ativo:true},
+    {id: uid(), nome: 'henrique luiz', email: 'henrique@example.com', telefone: '27999990008', senha:'123456', cargo:'admin', ativo:true},
+    {id: uid(), nome: 'isadora luz', email: 'isadora@example.com', telefone: '27999990009', senha:'123456', cargo:'vendas', ativo:true},
+    {id: uid(), nome: 'joao pedro', email: 'joao@example.com', telefone: '27999990010', senha:'123456', cargo:'relacionamento', ativo:true}
+  ];
+  saveFuncs(sample);
+  return sample;
+}
+
+// Navegação de views
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => { v.classList.remove('active-view'); v.style.display = 'none'; });
+  const el = document.getElementById('view-' + id);
+  if (!el) return console.warn('view não encontrada:', id);
+  el.style.display = 'block';
+  el.classList.add('active-view');
+  currentView = id;
+  if (id === 'list') renderList();
+  else if (id === 'add') document.getElementById('formAdd').reset();
+}
+function navigateTo(view, payload) {
+  if (view === 'edit') loadEdit(payload);
+  else if (view === 'profile') loadProfile(payload);
+  else showView(view);
+  history.pushState({view, payload}, '', '#' + view + (payload ? ('|' + payload) : ''));
+}
+window.onpopstate = (ev) => {
+  const state = ev.state;
+  if (!state) { closeSidePanel(); showView('list'); return; }
+  if (state.view === 'profile') {
+    if (state.payload) loadProfile(state.payload, true);
+    else closeSidePanel();
+  } else if (state.view === 'edit') loadEdit(state.payload, true);
+  else showView(state.view);
+};
+
+// Lista & paginação
+function onSearchInput() { currentQuery = document.getElementById('searchInput').value.trim().toLowerCase(); currentPage = 1; renderList(); }
+function filterFuncs(all, q) {
+  if (!q) return all;
+  return all.filter(f => (f.nome||'').toLowerCase().includes(q) || (f.email||'').toLowerCase().includes(q) || (f.cargo||'').toLowerCase().includes(q));
+}
+function renderList() {
+  const all = getFuncs();
+  const filtered = filterFuncs(all, currentQuery);
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+  const tbody = document.getElementById('funcTbody');
+  tbody.innerHTML = '';
+  if (pageItems.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Nenhum funcionario cadastrado.</td></tr>`;
+  } else {
+    for (const f of pageItems) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><a href="#" onclick="navigateTo('profile','${f.id}'); return false;">${escapeHtml(f.nome)}</a></td>
+        <td>${escapeHtml(f.email)}</td>
+        <td>${escapeHtml(f.telefone)}</td>
+        <td>${escapeHtml(f.cargo)}</td>
+        <td>
+          <button class="btn btn-sm btn-warning btn-xs" onclick="navigateTo('edit','${f.id}')">Editar</button>
+          <button class="btn btn-sm btn-danger btn-xs" onclick="onDelete('${f.id}')">Deletar</button>
+          <button class="btn btn-sm btn-secondary btn-xs" onclick="onResetPassword('${f.id}')">Redefinir Senha</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+  renderPagination(totalPages);
+}
+function renderPagination(totalPages) {
+  const ul = document.getElementById('pagination');
+  ul.innerHTML = '';
+  function addLi(content, active=false, disabled=false, onclick=null) {
+    const li = document.createElement('li');
+    li.className = 'page-item' + (active ? ' active' : '') + (disabled ? ' disabled' : '');
+    const a = document.createElement('a');
+    a.className = 'page-link';
+    a.innerHTML = content;
+    if (!disabled && onclick) a.onclick = onclick;
+    li.appendChild(a);
+    ul.appendChild(li);
+  }
+  if (currentPage > 1) addLi('Anterior', false, false, () => { currentPage--; renderList(); });
+  else addLi('Anterior', false, true, null);
+  if (totalPages <= 7) {
+    for (let p = 1; p <= totalPages; p++) addLi(p, p === currentPage, false, () => { currentPage = p; renderList(); });
+  } else {
+    addLi(1, currentPage === 1, false, () => { currentPage = 1; renderList(); });
+    if (currentPage > 4) addLi('...', false, true, null);
+    for (let p = currentPage - 2; p <= currentPage + 2; p++) if (p > 1 && p < totalPages) addLi(p, p === currentPage, false, () => { currentPage = p; renderList(); });
+    if (currentPage < totalPages - 3) addLi('...', false, true, null);
+    addLi(totalPages, currentPage === totalPages, false, () => { currentPage = totalPages; renderList(); });
+  }
+  if (currentPage < totalPages) addLi('Próxima', false, false, () => { currentPage++; renderList(); });
+  else addLi('Próxima', false, true, null);
+}
+
+// ADD
+function submitAdd(ev) {
+  ev.preventDefault();
+  const nome = document.getElementById('addNome').value.trim();
+  const email = document.getElementById('addEmail').value.trim();
+  const telefone = document.getElementById('addTelefone').value.trim();
+  const senha = document.getElementById('addSenha').value;
+  const cargo = document.getElementById('addCargo').value;
+  const all = getFuncs();
+  const novo = { id: uid(), nome, email, telefone, senha, cargo, ativo:true };
+  all.unshift(novo);
+  saveFuncs(all);
+  currentPage = 1; currentQuery = ''; document.getElementById('searchInput').value = '';
+  navigateTo('list');
+}
+
+// EDIT
+function loadEdit(id, restoring=false) {
+  const all = getFuncs();
+  const f = all.find(x => x.id === id);
+  if (!f) { alert('Funcionário não encontrado.'); navigateTo('list'); return; }
+  document.getElementById('editId').value = f.id;
+  document.getElementById('editNome').value = f.nome || '';
+  document.getElementById('editEmail').value = f.email || '';
+  document.getElementById('editTelefone').value = f.telefone || '';
+  document.getElementById('editSenha').value = f.senha || '';
+  document.getElementById('editCargo').value = f.cargo || 'relacionamento';
+  showView('edit');
+  if (!restoring) history.pushState({view:'edit', payload:id}, '', '#edit|' + id);
+}
+function submitEdit(ev) {
+  ev.preventDefault();
+  const id = document.getElementById('editId').value;
+  const nome = document.getElementById('editNome').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  const telefone = document.getElementById('editTelefone').value.trim();
+  const senha = document.getElementById('editSenha').value;
+  const cargo = document.getElementById('editCargo').value;
+  const all = getFuncs();
+  const idx = all.findIndex(x => x.id === id);
+  if (idx === -1) { alert('Funcionário não encontrado.'); return; }
+  all[idx] = { id, nome, email, telefone, senha, cargo, ativo: all[idx].ativo !== false };
+  saveFuncs(all);
+  navigateTo('list');
+}
+
+// DELETE & RESET (quick)
+function onDelete(id) {
+  if (!id) return;
+  if (!confirm('Tem certeza que deseja deletar?')) return;
+  let all = getFuncs();
+  all = all.filter(x => x.id !== id);
+  saveFuncs(all);
+  // se o painel estava aberto para esse id, fecha
+  if (currentProfileId === id) closeSidePanel();
+  renderList();
+}
+function onResetPassword(id) {
+  // abre modal e pré-configura target id
+  if (!id) return;
+  currentProfileId = id;
+  openResetPasswordModal();
+}
+
+// PROFILE PANEL
+const overlay = document.getElementById('overlay');
+const sidePanel = document.getElementById('sidePanel');
+const resetPwdModal = new bootstrap.Modal(document.getElementById('resetPwdModal'), { keyboard: true });
+
+function loadProfile(id, restoring=false) {
+  const all = getFuncs();
+  const f = all.find(x => x.id === id);
+  if (!f) { alert('Funcionário não encontrado.'); return; }
+  currentProfileId = id;
+
+  document.getElementById('panelTitle').textContent = capitalize(f.nome || 'Perfil');
+  document.getElementById('panelSubtitle').textContent = `Cargo: ${f.cargo || '-'}`;
+  document.getElementById('profileNome').textContent = f.nome || '-';
+  document.getElementById('profileEmail').textContent = f.email || '-';
+  document.getElementById('profileTelefone').textContent = f.telefone || '-';
+  document.getElementById('profileCargo').textContent = f.cargo || '-';
+  document.getElementById('profileStatus').textContent = f.ativo === false ? 'Inativo' : 'Ativo';
+
+  // Edit button from header
+  document.getElementById('editFromPanelBtn').onclick = () => editFromPanel();
+
+  // Toggle active button
+  const toggleActiveBtn = document.getElementById('toggleActiveBtn');
+  toggleActiveBtn.onclick = () => toggleActive(f.id);
+  toggleActiveBtn.innerHTML = f.ativo === false ? '<i class="bi bi-check-circle"></i> Reativar' : '<i class="bi bi-slash-circle"></i> Desativar';
+
+  // Montar abas: A,B,C,E,G,H
+  const tabs = document.getElementById('profileTabs');
+  const content = document.getElementById('profileTabContent');
+  tabs.innerHTML = ''; content.innerHTML = '';
+
+  addProfileTab('tab-dados', 'Dados pessoais', `
+    <dl class="row">
+      <dt class="col-sm-4">Nome</dt><dd class="col-sm-8">${escapeHtml(f.nome || '-')}</dd>
+      <dt class="col-sm-4">CPF</dt><dd class="col-sm-8">${escapeHtml(f.cpf || '—')}</dd>
+      <dt class="col-sm-4">Nascimento</dt><dd class="col-sm-8">${escapeHtml(f.nascimento || '—')}</dd>
+    </dl>
+  `, true);
+
+  addProfileTab('tab-cargo', 'Cargo & Setor', `
+    <p><strong>Cargo:</strong> ${escapeHtml(f.cargo || '—')}</p>
+    <p><strong>Setor / Unidade:</strong> ${escapeHtml(f.setor || '—')}</p>
+  `);
+
+  addProfileTab('tab-contato', 'Contato', `
+    <p><strong>Email:</strong> ${escapeHtml(f.email || '—')}</p>
+    <p><strong>Telefone:</strong> ${escapeHtml(f.telefone || '—')}</p>
+    <p><strong>Endereço:</strong> ${escapeHtml(f.endereco || '—')}</p>
+  `);
+
+  addProfileTab('tab-historico', 'Histórico', `
+    <p>Últimas ações (exemplo):</p>
+    <ul>
+      <li>01/10/2025 - Acesso ao sistema</li>
+      <li>09/09/2025 - Atualização de dados</li>
+      <li>02/08/2025 - Participou do treinamento X</li>
+    </ul>
+  `);
+
+  addProfileTab('tab-permissoes', 'Permissões', `
+    <p><strong>Nível de acesso:</strong> ${f.cargo === 'admin' ? 'Administrador' : 'Usuário padrão'}</p>
+    <p><strong>Papéis:</strong> ${f.cargo === 'recrutamento' ? 'Recrutador' : (f.cargo === 'vendas' ? 'Vendedor' : 'Atendente')}</p>
+  `);
+
+  addProfileTab('tab-config', 'Configurações', `
+    <p><button class="btn btn-sm btn-outline-primary" onclick="openResetPasswordModal()">Redefinir senha</button></p>
+    <p><button class="btn btn-sm btn-outline-secondary" onclick="editFromPanel()">Editar perfil</button></p>
+  `);
+
+  openSidePanel();
+
+  if (!restoring) history.pushState({view:'profile', payload:id}, '', '#profile|' + id);
+}
+
+// adiciona uma aba e pane — função completa (corrigida)
+function addProfileTab(id, title, htmlContent, active=false) {
+  const tabs = document.getElementById('profileTabs');
+  const content = document.getElementById('profileTabContent');
+
+  const li = document.createElement('li');
+  li.className = 'nav-item';
+  const btn = document.createElement('button');
+  btn.className = 'nav-link' + (active ? ' active' : '');
+  btn.type = 'button';
+  btn.setAttribute('data-bs-toggle', 'pill');
+  btn.setAttribute('aria-controls', id);
+  btn.onclick = () => {
+    // controla classes manualmente
+    tabs.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+    btn.classList.add('active');
+    content.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show','active'));
+    pane.classList.add('show','active');
+  };
+  btn.innerText = title;
+  li.appendChild(btn);
+  tabs.appendChild(li);
+
+  const pane = document.createElement('div');
+  pane.className = 'tab-pane fade' + (active ? ' show active' : '');
+  pane.id = id;
+  pane.innerHTML = htmlContent;
+  content.appendChild(pane);
+}
+
+function openSidePanel() {
+  overlay.classList.add('show');
+  sidePanel.classList.add('open');
+  sidePanel.setAttribute('aria-hidden','false');
+  // focus for accessibility
+  const closeBtn = sidePanel.querySelector('.btn-danger');
+  if (closeBtn) closeBtn.focus();
+}
+function closeSidePanel() {
+  overlay.classList.remove('show');
+  sidePanel.classList.remove('open');
+  sidePanel.setAttribute('aria-hidden','true');
+  currentProfileId = null;
+  // voltar à lista
+  showView('list');
+  // push a state without profile so back/forward stays consistent
+  history.pushState({}, '', '#');
+}
+
+// editar a partir do painel
+function editFromPanel() {
+  if (!currentProfileId) return;
+  loadEdit(currentProfileId);
+  closeSidePanel();
+}
+
+// alterna ativo/inativo
+function toggleActive(id) {
+  const all = getFuncs();
+  const idx = all.findIndex(x => x.id === id);
+  if (idx === -1) return alert('Funcionário não encontrado.');
+  all[idx].ativo = !all[idx].ativo;
+  saveFuncs(all);
+  loadProfile(id, true); // atualizar painel
+  renderList();
+}
+
+// Reset password modal handlers
+function openResetPasswordModal() {
+  if (!currentProfileId) return alert('Nenhum funcionário selecionado.');
+  document.getElementById('newPassword').value = '';
+  document.getElementById('newPasswordConfirm').value = '';
+  resetPwdModal.show();
+}
+
+function confirmResetPassword(ev) {
+  ev.preventDefault();
+  const p1 = document.getElementById('newPassword').value;
+  const p2 = document.getElementById('newPasswordConfirm').value;
+  if (p1.length < 4) return alert('Senha muito curta.');
+  if (p1 !== p2) return alert('As senhas não conferem.');
+  // salvar nova senha
+  const all = getFuncs();
+  const idx = all.findIndex(x => x.id === currentProfileId);
+  if (idx === -1) { alert('Funcionário não encontrado.'); resetPwdModal.hide(); return; }
+  all[idx].senha = p1;
+  saveFuncs(all);
+  resetPwdModal.hide();
+  alert('Senha atualizada.');
+  loadProfile(currentProfileId, true);
+}
+
+// quick reset password (button in list) — fallback (resets to '123456')
+function onResetPasswordQuick(id) {
+  const all = getFuncs();
+  const idx = all.findIndex(x => x.id === id);
+  if (idx === -1) return alert('Funcionário não encontrado.');
+  all[idx].senha = '123456';
+  saveFuncs(all);
+  alert('Senha redefinida para: 123456');
+  if (currentProfileId === id) loadProfile(id, true);
+}
+
+// Helpers
+function escapeHtml(text) {
+  if (text === undefined || text === null) return '';
+  return String(text).replace(/[&<>"'`=\/]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'}[s]));
+}
+function capitalize(s) { if (!s) return s; return s.split(' ').map(w => w.charAt(0).toUpperCase()+w.slice(1)).join(' '); }
+
+// Inicialização: seed, render e hash support
+(function init() {
+  getFuncs(); // seed if needed
+  showView('list');
+
+  // handle direct hash links (profile/edit)
+  if (location.hash) {
+    const h = location.hash.slice(1);
+    const [view, payload] = h.split('|');
+    if (view === 'profile') loadProfile(payload, true);
+    else if (view === 'edit') loadEdit(payload, true);
+    else if (view === 'add') showView('add');
+    else showView('list');
+  }
+})();
+</script>
+</body>
 </html>

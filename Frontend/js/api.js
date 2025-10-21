@@ -15,26 +15,19 @@ async function login(login, senha) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ login, senha })
+        body: JSON.stringify({ login, senha }) // Usando shorthand { login, senha }
     });
 
-    // PRIMEIRO, checamos se a requisição falhou (status 4xx ou 5xx)
-    if (!response.ok) {
-        // Se falhou, não tentamos ler o JSON.
-        // Lançamos um erro com uma mensagem amigável.
-        // O status 401 ou 403 geralmente significa credenciais inválidas.
-        if (response.status === 401 || response.status === 403) {
-            throw new Error('Usuário ou senha inválidos.');
-        } else {
-            // Para outros erros de servidor (como 500)
-            throw new Error('Falha na comunicação com o servidor. Tente novamente mais tarde.');
-        }
-    }
-
-    // SOMENTE SE a requisição foi um sucesso (status 2xx), tentamos ler o JSON.
     const data = await response.json();
 
+    if (!response.ok) {
+        // Se a resposta não for OK, lança um erro com a mensagem do backend.
+        throw new Error(data.message || 'Erro ao tentar fazer login.');
+    }
+
+    // Se o login for bem-sucedido e o backend retornar um token...
     if (data.token) {
+        // Armazenamos o token no localStorage do navegador para usar depois.
         localStorage.setItem('jwt_token', data.token);
     }
     
