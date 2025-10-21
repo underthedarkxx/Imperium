@@ -23,7 +23,6 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
     private final AuthenticationService authenticationService;
 
-    // Construtor para injetar os serviços
     public SecurityFilter(TokenService tokenService, AuthenticationService authenticationService) {
         this.tokenService = tokenService;
         this.authenticationService = authenticationService;

@@ -1,65 +1,69 @@
-package com.Imperium.service;
+package com.Imperium.service; // define o pacote da classe
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired; // para injeção de dependências
+import org.springframework.security.crypto.password.PasswordEncoder; // para criptografar senhas
+import org.springframework.stereotype.Service; // marca como serviço Spring
+import org.springframework.transaction.annotation.Transactional; // marca métodos como transacionais
 
-import com.Imperium.dto.UsuarioCriacaoDTO;
-import com.Imperium.dto.UsuarioUpdateDTO;
-import com.Imperium.model.Funcoes;
-import com.Imperium.model.Usuario;
-import com.Imperium.repository.FuncoesRepository;
-import com.Imperium.repository.UsuarioRepository;
+import com.Imperium.dto.UsuarioCriacaoDTO; // DTO para criação de usuário
+import com.Imperium.dto.UsuarioUpdateDTO; // DTO para atualização de usuário
+import com.Imperium.model.Funcoes; // modelo Funcoes
+import com.Imperium.model.Usuario; // modelo Usuario
+import com.Imperium.repository.FuncoesRepository; // repositório de funções
+import com.Imperium.repository.UsuarioRepository; // repositório de usuários
 
-
-@Service
+@Service // marca como serviço Spring
 public class UsuarioService {
     
-    @Autowired
+    @Autowired // injeta automaticamente o repositório de usuários
     private UsuarioRepository usuarioRepository;
-    @Autowired
+
+    @Autowired // injeta automaticamente o repositório de funções
     private FuncoesRepository funcoesRepository;
-    @Autowired
+
+    @Autowired // injeta o encoder de senhas
     private PasswordEncoder passwordEncoder;
 
+    // Método para criar um novo usuário
     public void criarNovoUsuario(UsuarioCriacaoDTO dto){
         Funcoes funcao = funcoesRepository.findById(dto.getFuncaoId())
-                .orElseThrow(() -> new RuntimeException("Função não encontrada!"));
+                .orElseThrow(() -> new RuntimeException("Função não encontrada!")); // busca função ou lança exceção
 
         Usuario novoUsuario = new Usuario();
-        novoUsuario.setLogin(dto.getLogin());
-        novoUsuario.setSenha(passwordEncoder.encode(dto.getSenha()));
-        novoUsuario.setFuncao(funcao);
+        novoUsuario.setLogin(dto.getLogin()); // define login
+        novoUsuario.setSenha(passwordEncoder.encode(dto.getSenha())); // criptografa e define senha
+        novoUsuario.setFuncao(funcao); // define função
 
-        usuarioRepository.save(novoUsuario);
+        usuarioRepository.save(novoUsuario); // salva usuário no banco
     }
 
+    // Método transacional para atualizar usuário existente
     @Transactional
     public void atualizarUsuario(Long id, UsuarioUpdateDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id)); // busca usuário
 
         if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
-            usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+            usuario.setSenha(passwordEncoder.encode(dto.getSenha())); // atualiza senha se fornecida
         }
 
         if (dto.getFuncaoId() != null) {
             Funcoes novaFuncao = funcoesRepository.findById(dto.getFuncaoId())
-                    .orElseThrow(() -> new RuntimeException("Função não encontrada com o ID: " + dto.getFuncaoId()));
-            usuario.setFuncao(novaFuncao);
+                    .orElseThrow(() -> new RuntimeException("Função não encontrada com o ID: " + dto.getFuncaoId())); // busca nova função
+            usuario.setFuncao(novaFuncao); // atualiza função
         }
 
-        usuarioRepository.save(usuario);
+        usuarioRepository.save(usuario); // salva alterações
     }
 
+    // Método transacional para desativar usuário
     @Transactional
     public void desativarUsuario(Long id){
         Usuario usuario = usuarioRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id)); // busca usuário
 
-        usuario.setAtivo(false);
+        usuario.setAtivo(false); // marca usuário como inativo
 
-        usuarioRepository.save(usuario);
+        usuarioRepository.save(usuario); // salva alteração
     }
 }

@@ -1,10 +1,13 @@
-package com.Imperium.repository;
-import java.util.Optional;
+package com.Imperium.repository; // define o pacote da interface
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional; // para retornar um valor que pode estar ausente
 
-import com.Imperium.model.Usuario;
+import org.springframework.data.jpa.repository.JpaRepository; // repositório JPA com métodos prontos
 
+import com.Imperium.model.Usuario; // modelo Usuario
+
+// Interface para acessar Usuarios no banco de dados
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+    // Busca um usuário pelo login, retornando Optional caso não exista
     Optional<Usuario> findByLogin(String login);
 }
