@@ -1,27 +1,21 @@
 package com.Imperium.model; // define o pacote da classe
 
 import java.time.LocalDateTime; // para armazenar datas
-import java.util.Collection; // coleção de autoridades do usuário
-import java.util.List; // listas
 
-import org.springframework.security.core.GrantedAuthority; // interface para permissões de usuário
-import org.springframework.security.core.authority.SimpleGrantedAuthority; // implementação de GrantedAuthority
-import org.springframework.security.core.userdetails.UserDetails; // interface do Spring Security para usuário
-
-import jakarta.persistence.Column; // mapeamento de colunas
-import jakarta.persistence.Entity; // marca classe como entidade JPA
-import jakarta.persistence.FetchType; // define tipo de fetch para relacionamento
-import jakarta.persistence.GeneratedValue; // define geração automática de ID
-import jakarta.persistence.GenerationType; // tipo de geração de ID
-import jakarta.persistence.Id; // marca chave primária
-import jakarta.persistence.JoinColumn; // define coluna de junção em relacionamento
-import jakarta.persistence.ManyToOne; // relacionamento muitos para um
-import jakarta.persistence.PrePersist; // método a ser executado antes de persistir
-import jakarta.persistence.Table; // define o nome da tabela
+import jakarta.persistence.Column; // coleção de autoridades do usuário
+import jakarta.persistence.Entity; // listas
+import jakarta.persistence.FetchType; // interface para permissões de usuário
+import jakarta.persistence.GeneratedValue; // implementação de GrantedAuthority
+import jakarta.persistence.GenerationType; // mapeamento de colunas
+import jakarta.persistence.Id; // marca classe como entidade JPA
+import jakarta.persistence.JoinColumn; // define tipo de fetch para relacionamento
+import jakarta.persistence.ManyToOne; // define geração automática de ID
+import jakarta.persistence.PrePersist; // tipo de geração de ID
+import jakarta.persistence.Table; // marca chave primária
 
 @Entity // indica que esta classe é uma entidade JPA
 @Table(name = "usuarios") // nome da tabela no banco de dados
-public class Usuario implements UserDetails { // implementa UserDetails para integração com Spring Security
+public class Usuario { // implementa UserDetails para integração com Spring Security
 
     @Id // chave primária
     @GeneratedValue(strategy = GenerationType.IDENTITY) // ID autoincrement
@@ -45,6 +39,7 @@ public class Usuario implements UserDetails { // implementa UserDetails para int
     @JoinColumn(name = "id_funcao") // coluna de junção para função
     private Funcoes funcao;
 
+    /*
     // Implementações do UserDetails para Spring Security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -52,34 +47,28 @@ public class Usuario implements UserDetails { // implementa UserDetails para int
             return List.of(); // sem autoridade se não houver função
         }
         return List.of(new SimpleGrantedAuthority("ROLE_" + funcao.getNome().toUpperCase())); // cria autoridade com prefixo ROLE_
-    }
+    }*/
 
-    @Override
     public String getPassword(){
         return this.senha;
     }
 
-    @Override
     public String getUsername(){
         return this.login;
     }
 
-    @Override
     public boolean isAccountNonExpired(){
         return true; // conta nunca expira
     }
     
-    @Override
     public boolean isAccountNonLocked(){
         return true; // conta nunca bloqueia
     }
 
-    @Override
     public boolean isCredentialsNonExpired(){
         return true; // credenciais nunca expiram
     }
 
-    @Override
     public boolean isEnabled(){
         return true; // conta sempre habilitada (ativo é verificado separadamente)
     }
@@ -99,15 +88,15 @@ public class Usuario implements UserDetails { // implementa UserDetails para int
 
     public LocalDateTime getDataCadastro(){ return dataCadastro; }
 
-    @PrePersist // executa antes de persistir no banco
-    protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now(); // define data de cadastro atual
-        this.ativo = true; // define usuário como ativo por padrão
-    }
-
     public LocalDateTime getDataUltimoAcesso(){ return dataUltimoAcesso; }
     public void setDataUltimoAcesso(LocalDateTime dataUltimoAcesso){ this.dataUltimoAcesso = dataUltimoAcesso; }
 
     public Funcoes getFuncao() { return funcao; }
     public void setFuncao(Funcoes funcao) { this.funcao = funcao; }
+
+    @PrePersist // executa antes de persistir no banco
+    protected void onCreate() {
+        this.dataCadastro = LocalDateTime.now(); // define data de cadastro atual
+        this.ativo = true; // define usuário como ativo por padrão
+    }
 }

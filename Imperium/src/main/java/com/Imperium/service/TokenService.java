@@ -1,4 +1,4 @@
-package com.Imperium.service; // define o pacote da classe
+/*package com.Imperium.service; // define o pacote da classe
 
 import java.time.Instant; // para representar instantes de tempo
 import java.time.LocalDateTime; // para manipular datas e horas
@@ -51,4 +51,4 @@ public class TokenService {
     private Instant dataExpiracao(){
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
-}
+}*/

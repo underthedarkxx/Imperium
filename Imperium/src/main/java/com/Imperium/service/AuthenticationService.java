@@ -1,4 +1,4 @@
-package com.Imperium.service; // define o pacote da classe
+/*package com.Imperium.service; // define o pacote da classe
 
 import org.springframework.beans.factory.annotation.Autowired; // para injeção automática de dependências
 import org.springframework.security.core.userdetails.UserDetails; // interface que representa o usuário autenticável
@@ -20,4 +20,4 @@ public class AuthenticationService implements UserDetailsService { // implementa
         return repository.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Dados inválidos."));
     }
-}
+}*/

@@ -1,4 +1,4 @@
-package com.Imperium.controller; // define o pacote da classe
+/*package com.Imperium.controller; // define o pacote da classe
 
 import org.springframework.beans.factory.annotation.Autowired; // permite injeção automática de dependências
 import org.springframework.http.ResponseEntity; // para retornar respostas HTTP
@@ -36,4 +36,58 @@ public class AuthenticationController {
 
         return ResponseEntity.ok(new DadosTokenJWT(tokenJWT)); // retorna o token JWT na resposta HTTP 200 OK
     }
+}*/
+
+package com.Imperium.controller;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.Imperium.model.Usuario;
+import com.Imperium.repository.UsuarioRepository;
+
+@RestController
+@RequestMapping("/api")
+@CrossOrigin(origins = "*")
+public class AuthenticationController {
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Usuario loginRequest) {
+        var usuario = usuarioRepository.findByLogin(loginRequest.getLogin());
+
+        if (usuario.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of(
+                "status", "erro",
+                "mensagem", "Usuário não encontrado"
+            ));
+        }
+
+        var user = usuario.get();
+        if (!passwordEncoder.matches(loginRequest.getSenha(), user.getSenha())) {
+            return ResponseEntity.status(401).body(Map.of(
+                "status", "erro",
+                "mensagem", "Senha incorreta"
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+            "status", "sucesso",
+            "mensagem", "Login bem-sucedido!"
+        ));
+    }
+
 }

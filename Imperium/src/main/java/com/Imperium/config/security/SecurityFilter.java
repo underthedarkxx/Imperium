@@ -1,4 +1,4 @@
-package com.Imperium.config.security;
+/*package com.Imperium.config.security;
 
 import java.io.IOException;
 
@@ -50,4 +50,4 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
         return null;
     }
-}
+}*/
