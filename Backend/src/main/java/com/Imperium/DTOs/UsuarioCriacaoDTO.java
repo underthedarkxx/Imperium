@@ -3,7 +3,6 @@ package com.Imperium.DTOs; // define o pacote da classe
 import com.Imperium.Enum.Setor;
 // DTO para receber dados de criação de usuário via requisição
 public class UsuarioCriacaoDTO {
-    private String nomeUsuario;
     private String login; // login do novo usuário
     private String senha; // senha do novo usuário
     private Setor setorUsuario; // ID da função/role atribuída ao usuário
