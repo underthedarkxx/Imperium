@@ -16,9 +16,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
         // Buscar usuário pelo login (para autenticação)
     Optional<Usuario> findByLogin(String login);
 
-    // Buscar usuário pelo nome do usuario (para evitar duplicação de nome do usuario)
-    Optional<Usuario> findByNomeUsuario(String nomeUsuario);
-
     // Buscar usuários por setor
     List<Usuario> findBySetorUsuario(Setor setor);
 

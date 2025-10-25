@@ -27,7 +27,6 @@ public class DataInitializer implements ApplicationRunner {
         // --- CRIA O USUÁRIO ADMIN SE NÃO EXISTIR ---
         if (usuarioRepository.findByLogin("Admin").isEmpty()) {
             Usuario adminUser = new Usuario();
-            adminUser.setNomeUsuario("Administrador Principal");
             adminUser.setLogin("Admin");
             adminUser.setSenha(passwordEncoder.encode("Admin123*"));
             adminUser.setSetorUsuario(Setor.CEO); // ou Setor.Administrador

@@ -8,9 +8,6 @@ public class UsuarioCriacaoDTO {
     private String senha; // senha do novo usuário
     private Setor setorUsuario; // ID da função/role atribuída ao usuário
 
-    // Getter e Setter para login
-    public String getNomeUsuario(){ return nomeUsuario;}
-    public void setNomeUsuario(String nomeUsuario){this.nomeUsuario = nomeUsuario;}
 
     // Getter e Setter para login
     public String getLogin() { return login; }

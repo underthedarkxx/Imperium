@@ -39,13 +39,6 @@ public class UsuarioController {
             ));
         }
 
-        if (usuarioRepository.findByNomeUsuario(novoUsuario.getNomeUsuario()).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "status", "erro",
-                "mensagem", "Já existe um usuário com esse nome de usuario."
-            ));
-        }
-
         if(novoUsuario.getSetorUsuario() == null){
             return ResponseEntity.badRequest().body(Map.of(
                 "status", "erro","mensagem", "O campo 'setorUsuario' é obrigatório (ex: 'Gerente', 'Colaborador', etc)."
@@ -72,7 +65,6 @@ public class UsuarioController {
         .stream()
         .map(u -> new UsuarioResponseDTO(
             u.getId(),
-            u.getNomeUsuario(),
             u.getLogin(),
             u.isAtivo(),
             u.getDataCadastro(),

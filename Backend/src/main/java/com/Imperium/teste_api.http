@@ -12,7 +12,6 @@ POST {{host}}/api/usuarios/registrar
 Content-Type: application/json
 
 {
-    "nomeUsuario": "João Silva",
     "login": "joao.silva",
     "senha": "Senha123*",
     "setorUsuario": "Gerente"
@@ -28,30 +27,16 @@ POST {{host}}/api/usuarios/registrar
 Content-Type: application/json
 
 {
-"nomeUsuario": "João Diferente",
 "login": "joao.silva",
 "senha": "Senha123*",
 "setorUsuario": "Colaborador"
 }
 
-################################################################
 
-#3. CRIAR USUÁRIO - Falha (Nome de usuário duplicado)
-//Tenta criar um usuário com o mesmo nome de usuário do já existente.
-
-POST {{host}}/api/usuarios/registrar
-Content-Type: application/json
-
-{
-"nomeUsuario": "João Silva",
-"login": "joao.diferente",
-"senha": "Senha123*",
-"setorUsuario": "Colaborador"
-}
 
 ################################################################
 
-#4. CRIAR USUÁRIO - Falha (Setor não informado)
+#3. CRIAR USUÁRIO - Falha (Setor não informado)
 //Tenta criar um usuário sem informar o setor.
 
 POST {{host}}/api/usuarios/registrar
@@ -65,7 +50,7 @@ Content-Type: application/json
 
 ################################################################
 
-#5. LISTAR TODOS OS USUÁRIOS
+#4. LISTAR TODOS OS USUÁRIOS
 //Lista todos os usuários cadastrados.
 
 GET {{host}}/api/usuarios/listar

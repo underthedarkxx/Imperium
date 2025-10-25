@@ -28,9 +28,6 @@ public class Usuario implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name= "nomeUsuario", nullable = false, unique = true, length = 30)
-    private String nomeUsuario;
-
     @Column(name = "login", nullable = false, unique = true, length = 255) // Adicione unique = true
     private String login;
 
@@ -91,9 +88,6 @@ public class Usuario implements UserDetails {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
-    public String getNomeUsuario(){ return nomeUsuario;}
-    public void setNomeUsuario( String nomeUsuario){this.nomeUsuario = nomeUsuario;}
 
     public String getLogin() { return login; }
     public void setLogin(String login) { this.login = login; }

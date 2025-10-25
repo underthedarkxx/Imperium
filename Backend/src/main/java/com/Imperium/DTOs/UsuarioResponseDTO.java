@@ -6,7 +6,6 @@ import com.Imperium.Enum.Setor;
 
 public record UsuarioResponseDTO(
     Long id,
-    String nomeUsuario,
     String login,
     boolean ativo,
     LocalDateTime dataCadastro,

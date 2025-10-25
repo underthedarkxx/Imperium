@@ -24,16 +24,12 @@ public class UsuarioService {
         if(usuarioRepository.findByLogin(dto.getLogin()).isPresent()){
             throw new RuntimeException("Já existe um usuário com esse login!");
         }
-        if(usuarioRepository.findByNomeUsuario(dto.getNomeUsuario()).isPresent()){
-            throw new RuntimeException("Já existe um usuário com esse nome de usuário!");
-        }
         if(dto.getSetorUsuario() == null){
             throw new RuntimeException("O campo 'setorUsuario' é obrigatório!");
         }
 
         Usuario novoUsuario = new Usuario();
         novoUsuario.setAtivo(true);
-        novoUsuario.setNomeUsuario(dto.getNomeUsuario());
         novoUsuario.setLogin(dto.getLogin());
         novoUsuario.setSenha(passwordEncoder.encode(dto.getSenha()));
         novoUsuario.setSetorUsuario(dto.getSetorUsuario());
