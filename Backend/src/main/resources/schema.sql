@@ -16,6 +16,7 @@ FLUSH PRIVILEGES;
 -- Seleciona o banco de dados para usar
 USE Imperium;
 
+/*
 -- (CORREÇÃO) Passo 1: Criar a tabela 'funcoes' PRIMEIRO
 CREATE TABLE IF NOT EXISTS funcoes (
     id_funcao INT PRIMARY KEY AUTO_INCREMENT,
@@ -37,15 +38,30 @@ CREATE TABLE IF NOT EXISTS Usuario(
     FOREIGN KEY (id_Funcao) REFERENCES funcoes(id_funcao)
 );
 
+
+
 -- Passo 3: Inserir os dados na tabela 'funcoes'
 INSERT INTO funcoes (nome, descricao) VALUES
 ('ADMINISTRADOR_PRINCIPAL', 'Pode gerenciar administradores e usuários.'),
 ('ADMINISTRADOR', 'Pode gerenciar apenas usuários padrão.'),
 ('USUARIO_PADRAO', 'Acesso básico ao sistema.');
 
-SELECT f.nome 
+SELECT f.nome
 FROM funcoes f
 JOIN Usuario u ON u.id_Funcao = f.id_funcao
 WHERE u.login = 'Admin';
 
 SELECT * FROM Usuario;
+
+*/
+
+CREATE TABLE IF NOT EXISTS Usuario(
+    id INT PRIMARY key,
+    nomeUsuario VARCHAR(255) NOT NULL UNIQUE,
+    login VARCHAR(30) NOT NULL UNIQUE,
+    Senha VARCHAR(255) NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    Criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data_ultimo_acesso DATETIME NULL,
+    setorUsuario ENUM('Colaborador', 'Gerente', 'Administrador', 'CEO')
+);
