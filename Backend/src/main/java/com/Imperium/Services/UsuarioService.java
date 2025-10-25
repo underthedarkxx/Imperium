@@ -7,9 +7,7 @@ import org.springframework.transaction.annotation.Transactional; // marca métod
 
 import com.Imperium.DTOs.UsuarioCriacaoDTO;
 import com.Imperium.DTOs.UsuarioUpdateDTO;
-import com.Imperium.Models.Funcoes;
 import com.Imperium.Models.Usuario;
-import com.Imperium.Repositorys.FuncoesRepository;
 import com.Imperium.Repositorys.UsuarioRepository;
 
 @Service // marca como serviço Spring
@@ -18,23 +16,29 @@ public class UsuarioService {
     @Autowired // injeta automaticamente o repositório de usuários
     private UsuarioRepository usuarioRepository;
 
-    @Autowired // injeta automaticamente o repositório de funções
-    private FuncoesRepository funcoesRepository;
-
     @Autowired // injeta o encoder de senhas
     private PasswordEncoder passwordEncoder;
 
     // Método para criar um novo usuário
     public void criarNovoUsuario(UsuarioCriacaoDTO dto){
-        Funcoes funcao = funcoesRepository.findById(dto.getFuncaoId())
-                .orElseThrow(() -> new RuntimeException("Função não encontrada!")); // busca função ou lança exceção
+        if(usuarioRepository.findByLogin(dto.getLogin()).isPresent()){
+            throw new RuntimeException("Já existe um usuário com esse login!");
+        }
+        if(usuarioRepository.findByNomeUsuario(dto.getNomeUsuario()).isPresent()){
+            throw new RuntimeException("Já existe um usuário com esse nome de usuário!");
+        }
+        if(dto.getSetorUsuario() == null){
+            throw new RuntimeException("O campo 'setorUsuario' é obrigatório!");
+        }
 
         Usuario novoUsuario = new Usuario();
-        novoUsuario.setLogin(dto.getLogin()); // define login
-        novoUsuario.setSenha(passwordEncoder.encode(dto.getSenha())); // criptografa e define senha
-        novoUsuario.setFuncao(funcao); // define função
+        novoUsuario.setAtivo(true);
+        novoUsuario.setNomeUsuario(dto.getNomeUsuario());
+        novoUsuario.setLogin(dto.getLogin());
+        novoUsuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+        novoUsuario.setSetorUsuario(dto.getSetorUsuario());
 
-        usuarioRepository.save(novoUsuario); // salva usuário no banco
+        usuarioRepository.save(novoUsuario);
     }
 
     // Método transacional para atualizar usuário existente
@@ -47,10 +51,8 @@ public class UsuarioService {
             usuario.setSenha(passwordEncoder.encode(dto.getSenha())); // atualiza senha se fornecida
         }
 
-        if (dto.getFuncaoId() != null) {
-            Funcoes novaFuncao = funcoesRepository.findById(dto.getFuncaoId())
-                    .orElseThrow(() -> new RuntimeException("Função não encontrada com o ID: " + dto.getFuncaoId())); // busca nova função
-            usuario.setFuncao(novaFuncao); // atualiza função
+        if (dto.getSetorUsuario() != null){
+            usuario.setSetorUsuario(dto.getSetorUsuario());
         }
 
         usuarioRepository.save(usuario); // salva alterações

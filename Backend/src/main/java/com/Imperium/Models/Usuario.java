@@ -8,24 +8,28 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails; // Importe a interface UserDetails
 
+import com.Imperium.Enum.Setor;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "usuarios")
-public class Usuario implements UserDetails { // <-- 1. Adicione "implements UserDetails"
+@Table(name = "Usuario")
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name= "nomeUsuario", nullable = false, unique = true, length = 30)
+    private String nomeUsuario;
 
     @Column(name = "login", nullable = false, unique = true, length = 255) // Adicione unique = true
     private String login;
@@ -33,29 +37,23 @@ public class Usuario implements UserDetails { // <-- 1. Adicione "implements Use
     @Column(name = "senha", nullable = false, length = 255)
     private String senha;
 
-    @Column(name = "data_cadastro", nullable = false, updatable = false)
+    private boolean ativo;
+
+    @Column(name = "Criacao", nullable = false, updatable = false)
     private LocalDateTime dataCadastro;
 
     @Column(name = "data_ultimo_acesso")
     private LocalDateTime dataUltimoAcesso;
 
-    private boolean ativo;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_funcao")
-    private Funcoes funcao;
-
-    // --- MÉTODOS DO USERDETAILS ---
+    @Enumerated(EnumType.STRING)
+    @Column(name ="setorUsuario", nullable = false)
+    private Setor setorUsuario;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // <-- 2. Descomente este método. Ele informa ao Spring qual é a "ROLE" do usuário.
-        if (this.funcao == null) {
-            return List.of(); // Nenhuma permissão se não houver função
-        }
-        // O nome da função será a permissão. Ex: "ADMINISTRADOR_PRINCIPAL"
-        return List.of(new SimpleGrantedAuthority("ROLE_" + funcao.getNome().toUpperCase()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + setorUsuario.name()));
     }
+
 
     @Override
     public String getPassword() {
@@ -85,15 +83,17 @@ public class Usuario implements UserDetails { // <-- 1. Adicione "implements Use
     @Override
     public boolean isEnabled() {
         // <-- 3. Conecte com o campo 'ativo'. Agora desativar um usuário vai impedi-lo de logar.
-        return this.ativo; 
+        return this.ativo;
     }
 
     // --- GETTERS E SETTERS ---
-    public boolean isAtivo() { return ativo; }
-    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+    
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getNomeUsuario(){ return nomeUsuario;}
+    public void setNomeUsuario( String nomeUsuario){this.nomeUsuario = nomeUsuario;}
 
     public String getLogin() { return login; }
     public void setLogin(String login) { this.login = login; }
@@ -101,15 +101,19 @@ public class Usuario implements UserDetails { // <-- 1. Adicione "implements Use
     public String getSenha() { return senha; }
     public void setSenha(String senha) { this.senha = senha; }
 
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+
     public LocalDateTime getDataCadastro() { return dataCadastro; }
     public void setDataCadastro(LocalDateTime dataCadastro) { this.dataCadastro = dataCadastro; }
-
 
     public LocalDateTime getDataUltimoAcesso() { return dataUltimoAcesso; }
     public void setDataUltimoAcesso(LocalDateTime dataUltimoAcesso) { this.dataUltimoAcesso = dataUltimoAcesso; }
 
-    public Funcoes getFuncao() { return funcao; }
-    public void setFuncao(Funcoes funcao) { this.funcao = funcao; }
+    public Setor getSetorUsuario(){ return setorUsuario;}
+    public void setSetorUsuario(Setor setorUsuario){
+        this.setorUsuario = setorUsuario;
+    }
 
     @PrePersist
     protected void onCreate() {

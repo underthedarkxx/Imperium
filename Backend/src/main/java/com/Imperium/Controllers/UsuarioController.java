@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.Imperium.DTOs.UsuarioResponseDTO;
 import com.Imperium.Models.Usuario;
 import com.Imperium.Repositorys.UsuarioRepository;
 
@@ -38,6 +39,23 @@ public class UsuarioController {
             ));
         }
 
+        if (usuarioRepository.findByNomeUsuario(novoUsuario.getNomeUsuario()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "erro",
+                "mensagem", "Já existe um usuário com esse nome de usuario."
+            ));
+        }
+
+        if(novoUsuario.getSetorUsuario() == null){
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "erro","mensagem", "O campo 'setorUsuario' é obrigatório (ex: 'Gerente', 'Colaborador', etc)."
+            ));
+        }
+
+        novoUsuario.setId(null); // evita sobrescrever
+        novoUsuario.setAtivo(true); // redundante, mas seguro
+        novoUsuario.setDataUltimoAcesso(null);
+
         // Criptografa a senha antes de salvar
         novoUsuario.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
         usuarioRepository.save(novoUsuario);
@@ -47,11 +65,23 @@ public class UsuarioController {
             "mensagem", "Usuário registrado com sucesso!"
         ));
     }
+    // --- LISTAR USUÁRIOS ---
     @GetMapping("/listar")
     public ResponseEntity<?> listarUsuarios() {
-    var usuarios = usuarioRepository.findAll();
-    return ResponseEntity.ok(usuarios);
-}
+    var usuarios = usuarioRepository.findAll()
+        .stream()
+        .map(u -> new UsuarioResponseDTO(
+            u.getId(),
+            u.getNomeUsuario(),
+            u.getLogin(),
+            u.isAtivo(),
+            u.getDataCadastro(),
+            u.getDataUltimoAcesso(),
+            u.getSetorUsuario()
+        ))
+        .toList();
 
+    return ResponseEntity.ok(usuarios);
+    }
 }
 

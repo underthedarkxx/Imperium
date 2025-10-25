@@ -56,7 +56,7 @@ SELECT * FROM Usuario;
 */
 
 CREATE TABLE IF NOT EXISTS Usuario(
-    id INT PRIMARY key,
+    id INT PRIMARY kEY,
     nomeUsuario VARCHAR(255) NOT NULL UNIQUE,
     login VARCHAR(30) NOT NULL UNIQUE,
     Senha VARCHAR(255) NOT NULL,
