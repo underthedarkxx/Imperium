@@ -18,7 +18,7 @@ USE Imperium;
 
 CREATE TABLE IF NOT EXISTS Usuario(
 
-    idUsuario INT PRIMARY KEY AUTO_INCREMENT,
+    idUsuario Long PRIMARY KEY AUTO_INCREMENT,
     emailUsuario varchar(100) NOT NULL,
     senhaUsuario VARCHAR(255) NOT NULL,
     papelUsuario ENUM('Colaborador', 'Gerente', 'Administrador', 'CEO') NOT NULL,

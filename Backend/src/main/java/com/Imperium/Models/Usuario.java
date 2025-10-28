@@ -6,10 +6,9 @@ import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails; // Importe a interface UserDetails
+import org.springframework.security.core.userdetails.UserDetails;
 
-import com.Imperium.Enum.Setor;
-
+import com.Imperium.Enum.papelUsuario; // Importe a interface UserDetails
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +16,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -26,43 +27,48 @@ public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idUsuario")
     private Long id;
 
-    @Column(name= "nomeUsuario", nullable = false, unique = true, length = 30)
-    private String nomeUsuario;
+    @Column(name= "emailUsuario", nullable = false, length = 100)
+    private String emailUsuario;
 
-    @Column(name = "login", nullable = false, unique = true, length = 255) // Adicione unique = true
-    private String login;
-
-    @Column(name = "senha", nullable = false, length = 255)
-    private String senha;
-
-    private boolean ativo;
-
-    @Column(name = "Criacao", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
-    @Column(name = "data_ultimo_acesso")
-    private LocalDateTime dataUltimoAcesso;
+    @Column(name = "senhaUsuario", nullable = false, length = 255)
+    private String senhaUsuario;
 
     @Enumerated(EnumType.STRING)
-    @Column(name ="setorUsuario", nullable = false)
-    private Setor setorUsuario;
+    @Column(name = "papelUsuario", nullable = false)
+    private papelUsuario papelUsuario;
+
+    @Column(name = "dataInicioUsuario", nullable = false, updatable = false)
+    private LocalDateTime dataCadastro;
+
+    @Column(name = "ultimaAlteracaoUsuario")
+    private LocalDateTime dataUltimoAcesso;
+
+    @ManyToOne // "Muitos Usuários para UM Setor"
+    @JoinColumn(name = "idSetor") // O nome da coluna no SQL
+    private Setor Setor; // O tipo DEVE ser o objeto 'Setor'
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + setorUsuario.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + papelUsuario.name()));
     }
 
 
     @Override
     public String getPassword() {
-        return this.senha;
+        return this.senhaUsuario;
     }
 
     @Override
     public String getUsername() {
-        return this.login;
+        return this.emailUsuario;
     }
 
     @Override
@@ -80,29 +86,20 @@ public class Usuario implements UserDetails {
         return true; // Credenciais nunca expiram
     }
 
-    @Override
-    public boolean isEnabled() {
-        // <-- 3. Conecte com o campo 'ativo'. Agora desativar um usuário vai impedi-lo de logar.
-        return this.ativo;
-    }
-
     // --- GETTERS E SETTERS ---
     
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getNomeUsuario(){ return nomeUsuario;}
-    public void setNomeUsuario( String nomeUsuario){this.nomeUsuario = nomeUsuario;}
+    public String getEmailUsuario(){ return emailUsuario;}
+    public void setNomeUsuario( String emailUsuario){this.emailUsuario = emailUsuario;}
 
-    public String getLogin() { return login; }
-    public void setLogin(String login) { this.login = login; }
+    public String getSenhaUsuario() { return senhaUsuario; }
+    public void setSenhaUsuario(String senhaUsuario) { this.senhaUsuario = senhaUsuario; }
 
-    public String getSenha() { return senha; }
-    public void setSenha(String senha) { this.senha = senha; }
-
-    public boolean isAtivo() { return ativo; }
-    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+    public papelUsuario getPapelUsuario() { return papelUsuario; }
+    public void setPapelUsuario(papelUsuario papelUsuario) { this.papelUsuario = papelUsuario; }
 
     public LocalDateTime getDataCadastro() { return dataCadastro; }
     public void setDataCadastro(LocalDateTime dataCadastro) { this.dataCadastro = dataCadastro; }
@@ -110,14 +107,11 @@ public class Usuario implements UserDetails {
     public LocalDateTime getDataUltimoAcesso() { return dataUltimoAcesso; }
     public void setDataUltimoAcesso(LocalDateTime dataUltimoAcesso) { this.dataUltimoAcesso = dataUltimoAcesso; }
 
-    public Setor getSetorUsuario(){ return setorUsuario;}
-    public void setSetorUsuario(Setor setorUsuario){
-        this.setorUsuario = setorUsuario;
-    }
+    public int getIdSetor(){return idSetor;}
+    public void setIdSetor(int idSetor){ this.idSetor = idSetor;}
 
     @PrePersist
     protected void onCreate() {
         this.dataCadastro = LocalDateTime.now();
-        this.ativo = true;
     }
 }

@@ -1,6 +1,6 @@
 package com.Imperium.Enum;
 
-public enum Setor {
+public enum papelUsuario {
     Colaborador,
     Gerente,
     Administrador,
