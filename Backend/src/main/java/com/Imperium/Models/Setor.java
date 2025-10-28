@@ -11,7 +11,7 @@ public class Setor {
     @Id
     @Column(name = "idSetor", nullable=false)
     private int idSetor ;
-    @Column(name = "nome-setor",nullable=false)
+    @Column(name = "nomesetor",nullable=false)
     private String nomeSetor ;
     @Column(name = "ramal-setor", nullable=false)
     private String ramalSetor ;
