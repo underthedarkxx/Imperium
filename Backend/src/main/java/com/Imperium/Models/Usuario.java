@@ -8,8 +8,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.Imperium.Enum.papelUsuario; // Importe a interface UserDetails
-import jakarta.persistence.Column;
+import com.Imperium.Enum.papelUsuario;
+
+import jakarta.persistence.Column; // Importe a interface UserDetails
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -46,9 +47,9 @@ public class Usuario implements UserDetails {
     @Column(name = "ultimaAlteracaoUsuario")
     private LocalDateTime dataUltimoAcesso;
 
-    @ManyToOne // "Muitos Usuários para UM Setor"
-    @JoinColumn(name = "idSetor") // O nome da coluna no SQL
-    private Setor Setor; // O tipo DEVE ser o objeto 'Setor'
+    @ManyToOne
+    @JoinColumn(name = "idSetor")
+    private Setor setor;
 
     @Override
     public boolean isEnabled() {
@@ -107,8 +108,8 @@ public class Usuario implements UserDetails {
     public LocalDateTime getDataUltimoAcesso() { return dataUltimoAcesso; }
     public void setDataUltimoAcesso(LocalDateTime dataUltimoAcesso) { this.dataUltimoAcesso = dataUltimoAcesso; }
 
-    public int getIdSetor(){return idSetor;}
-    public void setIdSetor(int idSetor){ this.idSetor = idSetor;}
+    public Setor getIdSetor(){return setor;}
+    public void setIdSetor(Setor setor){ this.setor = setor;}
 
     @PrePersist
     protected void onCreate() {

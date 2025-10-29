@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS Chamados(
     dataFechamentoChamado DATETIME NOT NULL,
     statusChamado ENUM('Aberto', 'Em Processo', 'Fechado') NOT NULL DEFAULT 'Aberto',
     prioridadeChamado ENUM('Baixa', 'Media', 'Alta') NOT NULL DEFAULT 'Baixa',
-    idUsuario INT NOT NULL,
+    idUsuario Long NOT NULL,
     idSetor INT NOT NULL,
     FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario),
     FOREIGN KEY (idSetor) REFERENCES Setor(idSetor),
@@ -54,18 +54,18 @@ CREATE TABLE IF NOT EXISTS HistoricoChamado(
     descricao VARCHAR(255),
     dataHora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idChamado INT NOT NULL,
-    idUsuario INT NOT NULL,
+    idUsuario Long NOT NULL,
     FOREIGN KEY (idChamado) REFERENCES Chamados(idChamados),
     FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario)
 );
 
 CREATE TABLE IF NOT EXISTS Sugestoes(
-    idSugestao INT PRIMARY KEY AUTO_INCREMENT,
-    tituloSugestão VARCHAR(50) NOT NULL,
+    idSugestao Long PRIMARY KEY AUTO_INCREMENT,
+    tituloSugestao VARCHAR(50) NOT NULL,
     descricaoSugestao TEXT NOT NULL,
     dataEnvioSugestao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    statusSugestao ENUM ('Enviada', 'Em Analise', 'Aprovada', 'Rejeitada') NOT NULL DEFAULT 'Enviada',
-    idUsuario INT NOT NULL,
+    statusSugestao ENUM ('Enviada', 'EmAnalise', 'Aprovada', 'Rejeitada') NOT NULL DEFAULT 'Enviada',
+    idUsuario Long NOT NULL,
     idSetor INT NOT NULL,
     FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario),
     FOREIGN KEY (idSetor) REFERENCES Setor(idSetor)
