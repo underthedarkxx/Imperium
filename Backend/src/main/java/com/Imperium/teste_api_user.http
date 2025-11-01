@@ -1,7 +1,7 @@
 @host = http://localhost:8080
 
 ###############################################################
-### ETAPA 1: FAZER LOGIN (SALVA O TOKEN AUTOMATICAMENTE)
+### ETAPA 1: FAZER LOGIN (ADMIN/CEO)
 ###############################################################
 
 # @name loginCEO
@@ -18,18 +18,17 @@ Content-Type: application/json
 ###
 
 ###############################################################
-### ETAPA 2: CRIAR USUÁRIO (USA O TOKEN SALVO)
+### ETAPA 2: FAZER LOGIN (COLABORADOR)
+### (Usaremos este token para criar a sugestão)
 ###############################################################
 
-POST {{host}}/api/admin/usuarios
-Authorization: Bearer {{loginCEO.response.body.token}}
+# @name loginColaborador
+POST {{host}}/api/login
 Content-Type: application/json
 
 {
   "emailUsuario": "usuario.automatico@imperium.com",
-  "senha": "SenhaForte123*",
-  "idSetor": 1,
-  "papelUsuario": "Colaborador"
+  "senha": "SenhaForte123*"
 }
 
 ###
@@ -37,33 +36,35 @@ Content-Type: application/json
 ###
 
 ###############################################################
-### ETAPA 3: LISTAR TODOS OS USUÁRIOS
+### ETAPA 3: CRIAR SUGESTÃO (COMO COLABORADOR)
 ###############################################################
 
+# @name criarSugestao
+POST {{host}}/api/sugestoes
+# CORREÇÃO: Usando o token do COLABORADOR
+Authorization: Bearer {{loginColaborador.response.body.token}}
+Content-Type: application/json
+
+{
+  "titulo": "Melhorar máquina de café",
+  "descricaoSugestao": "A máquina de café do segundo andar está fazendo um barulho estranho e o café está saindo fraco. Sugiro manutenção."
+}
+
+
+###
+### SEPARADOR OBRIGATÓRIO (NÃO APAGUE)
+###
+
+###############################################################
+### SEÇÃO ADMIN (SÓ PARA TESTE DO ADMINCONTROLLER)
+###############################################################
+
+### LISTAR TODOS OS USUÁRIOS (Como CEO)
 GET {{host}}/api/admin/usuarios
 Authorization: Bearer {{loginCEO.response.body.token}} 
 Content-Type: application/json
 
-###
-### SEPARADOR OBRIGATÓRIO (NÃO APAGUE)
-###
-
-###############################################################
-### ETAPA 4: CONTAR O TOTAL DE USUÁRIOS
-###############################################################
+### CONTAR O TOTAL DE USUÁRIOS (Como CEO)
 GET {{host}}/api/admin/usuarios/contar
-Authorization: Bearer {{loginCEO.response.body.token}}
-Content-Type: application/json
-
-###
-### SEPARADOR OBRIGATÓRIO (NÃO APAGUE)
-###
-
-###############################################################
-### ETAPA 5: APAGAR O USUÁRIO CRIADO
-###############################################################
-
-# Supondo que o usuário "usuario.automatico" tenha o ID 2
-DELETE {{host}}/api/admin/usuarios/2
 Authorization: Bearer {{loginCEO.response.body.token}}
 Content-Type: application/json

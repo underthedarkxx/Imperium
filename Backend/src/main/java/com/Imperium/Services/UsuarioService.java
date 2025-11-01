@@ -1,13 +1,16 @@
 package com.Imperium.Services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.Imperium.DTOs.RegistroDTO;
 import com.Imperium.DTOs.UsuarioCriacaoDTO;
+import com.Imperium.DTOs.UsuarioResponseDTO;
 import com.Imperium.DTOs.UsuarioUpdateDTO;
 import com.Imperium.Enum.StatusUsuario;
 import com.Imperium.Enum.papelUsuario;
@@ -30,6 +33,7 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
 
     public void criarNovoUsuario(RegistroDTO dto){
         if(usuarioRepository.findByEmailUsuario(dto.emailUsuario()).isPresent()){
@@ -104,5 +108,30 @@ public class UsuarioService {
         }
 
         usuarioRepository.save(usuario);
+    }
+
+    public long contarUsuarios() {
+        return usuarioRepository.count();
+    }
+
+
+    public List<UsuarioResponseDTO> listarTodosUsuarios() {
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        
+        return usuarios.stream()
+                .map(UsuarioResponseDTO::new) // Assumindo que seu DTO tem um construtor que aceita (Usuario u)
+                .toList();
+    }
+
+    public void apagarUsuario(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Erro: Usuário com ID " + id + " não encontrado.");
+        }
+        
+        try {
+            usuarioRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Erro: Não é possível apagar o usuário. Ele está associado a outros registros.");
+        }
     }
 }

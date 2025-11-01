@@ -35,20 +35,15 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Mantém a config CORS
             .csrf(csrf -> csrf.disable())
-
-            // 6. Define a política de sessão como STATELESS (Sem estado)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/usuarios/registrar").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/usuarios/listar").permitAll() 
+                .requestMatchers(HttpMethod.POST, "/api/sugestoes").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(login -> login.disable())
             .httpBasic(basic -> basic.disable())
-            
-            // 7. Adiciona seu filtro JWT antes do filtro padrão de autenticação
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
