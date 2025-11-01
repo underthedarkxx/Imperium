@@ -68,3 +68,17 @@ Content-Type: application/json
 GET {{host}}/api/admin/usuarios/contar
 Authorization: Bearer {{loginCEO.response.body.token}}
 Content-Type: application/json
+
+###
+### SEPARADOR OBRIGATÓRIO (NÃO APAGUE)
+###
+
+###############################################################
+### ETAPA 4: ADMIN LISTA TODAS AS SUGESTÕES
+###############################################################
+
+# @name listarSugestoes
+GET {{host}}/api/sugestoes
+# CORREÇÃO: Deve usar o token de um ADMIN (CEO)
+Authorization: Bearer {{loginCEO.response.body.token}}
+Content-Type: application/json

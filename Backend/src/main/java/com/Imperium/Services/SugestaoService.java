@@ -1,11 +1,15 @@
 package com.Imperium.Services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.Imperium.DTOs.SugestaoCriacaoDTO;
-import com.Imperium.Enum.statusSugestao; // Importe seu enum
-import com.Imperium.Models.Sugestoes;
+import com.Imperium.DTOs.SugestaoResponseDTO;
+import com.Imperium.Enum.statusSugestao;
+import com.Imperium.Models.Sugestoes; // Importe seu enum
 import com.Imperium.Models.Usuario;
 import com.Imperium.Repositorys.SugestoesRepository;
 
@@ -40,5 +44,15 @@ public class SugestaoService {
         // 5. Salva no banco
         //    (A data de envio será preenchida pelo @PrePersist)
         sugestoesRepository.save(novaSugestao);
+    }
+
+    public List<SugestaoResponseDTO> listarTodasSugestoes() {
+        // 1. Busca todas do banco
+        List<Sugestoes> listaDeSugestoes = sugestoesRepository.findAll();
+        
+        // 2. Converte para a lista de DTOs
+        return listaDeSugestoes.stream()
+                .map(SugestaoResponseDTO::new) // Usa o construtor que criamos
+                .collect(Collectors.toList());
     }
 }

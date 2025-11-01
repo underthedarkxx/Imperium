@@ -40,6 +40,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/sugestoes").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/sugestoes").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(login -> login.disable())
