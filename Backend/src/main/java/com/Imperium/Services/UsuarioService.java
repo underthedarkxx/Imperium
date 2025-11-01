@@ -1,71 +1,108 @@
-package com.Imperium.Services; // define o pacote da classe
+package com.Imperium.Services;
 
-import org.springframework.beans.factory.annotation.Autowired; // para injeção de dependências
-import org.springframework.security.crypto.password.PasswordEncoder; // para criptografar senhas
-import org.springframework.stereotype.Service; // marca como serviço Spring
-import org.springframework.transaction.annotation.Transactional; // marca métodos como transacionais
+import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.Imperium.DTOs.RegistroDTO;
 import com.Imperium.DTOs.UsuarioCriacaoDTO;
 import com.Imperium.DTOs.UsuarioUpdateDTO;
+import com.Imperium.Enum.StatusUsuario;
+import com.Imperium.Enum.papelUsuario;
+import com.Imperium.Models.Setor;
 import com.Imperium.Models.Usuario;
+import com.Imperium.Repositorys.SetorRepository;
 import com.Imperium.Repositorys.UsuarioRepository;
 
-@Service // marca como serviço Spring
+import jakarta.transaction.Transactional;
+
+
+@Service
 public class UsuarioService {
     
-    @Autowired // injeta automaticamente o repositório de usuários
+    @Autowired
+    private SetorRepository setorRepository;
+
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired // injeta o encoder de senhas
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Método para criar um novo usuário
-    public void criarNovoUsuario(UsuarioCriacaoDTO dto){
-        if(usuarioRepository.findByLogin(dto.getLogin()).isPresent()){
-            throw new RuntimeException("Já existe um usuário com esse login!");
+    public void criarNovoUsuario(RegistroDTO dto){
+        if(usuarioRepository.findByEmailUsuario(dto.emailUsuario()).isPresent()){
+            throw new RuntimeException("Já existe um usuário com esse Email!");
         }
-        if(usuarioRepository.findByNomeUsuario(dto.getNomeUsuario()).isPresent()){
-            throw new RuntimeException("Já existe um usuário com esse nome de usuário!");
-        }
-        if(dto.getSetorUsuario() == null){
-            throw new RuntimeException("O campo 'setorUsuario' é obrigatório!");
+
+        Setor setor = null;
+
+        if (dto.idSetor() != null) {
+            setor = setorRepository.findById(dto.idSetor())
+                .orElseThrow(() -> new RuntimeException("Setor com ID " + dto.idSetor() + " não foi encontrado."));
         }
 
         Usuario novoUsuario = new Usuario();
-        novoUsuario.setAtivo(true);
-        novoUsuario.setNomeUsuario(dto.getNomeUsuario());
-        novoUsuario.setLogin(dto.getLogin());
-        novoUsuario.setSenha(passwordEncoder.encode(dto.getSenha()));
-        novoUsuario.setSetorUsuario(dto.getSetorUsuario());
+        novoUsuario.setEmailUsuario(dto.emailUsuario());
+        novoUsuario.setSenhaUsuario(passwordEncoder.encode(dto.senhaUsuario()));
+        novoUsuario.setSetor(setor);
+
+        novoUsuario.setPapelUsuario(papelUsuario.Colaborador);
 
         usuarioRepository.save(novoUsuario);
     }
 
-    // Método transacional para atualizar usuário existente
+    public void criarNovoUsuario(UsuarioCriacaoDTO dto) {
+        // Verifica se o e-mail já existe
+        if (usuarioRepository.findByEmailUsuario(dto.emailUsuario()).isPresent()) {
+            throw new RuntimeException("E-mail já cadastrado");
+        }
+
+        // Busca o Setor pelo ID fornecido no DTO
+        // É importante verificar se o setor existe antes de usá-lo
+        Setor setor = null; // Inicia como nulo
+        if (dto.idSetor() != null) {
+            setor = setorRepository.findById(dto.idSetor())
+                .orElseThrow(() -> new RuntimeException("Setor com ID " + dto.idSetor() + " não encontrado"));
+        }
+
+        // Cria a nova entidade Usuario
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setEmailUsuario(dto.emailUsuario());
+        novoUsuario.setSenhaUsuario(passwordEncoder.encode(dto.senha()));
+        novoUsuario.setSetor(setor);
+
+        
+        novoUsuario.setPapelUsuario(papelUsuario.Colaborador);
+        novoUsuario.setStatusUsuario(StatusUsuario.Ativo);
+        novoUsuario.setDataCadastro(LocalDateTime.now());
+
+        usuarioRepository.save(novoUsuario);
+    }
+    
     @Transactional
     public void atualizarUsuario(Long id, UsuarioUpdateDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id)); // busca usuário
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id)); 
 
-        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
-            usuario.setSenha(passwordEncoder.encode(dto.getSenha())); // atualiza senha se fornecida
+        if (dto.senha() != null && !dto.senha().isBlank()) {
+            usuario.setSenhaUsuario(passwordEncoder.encode(dto.senha()));
         }
 
-        if (dto.getSetorUsuario() != null){
-            usuario.setSetorUsuario(dto.getSetorUsuario());
+        if (dto.idSetor() != null) {
+            Setor novoSetor = setorRepository.findById(dto.idSetor())
+                .orElseThrow(() -> new RuntimeException("Setor com ID " + dto.idSetor() + " não encontrado."));
+            usuario.setSetor(novoSetor);
+        }
+        
+        if (dto.papelUsuario() != null) {
+            usuario.setPapelUsuario(dto.papelUsuario());
+        }
+        if (dto.statusUsuario() != null) {
+            usuario.setStatusUsuario(dto.statusUsuario());
         }
 
-        usuarioRepository.save(usuario); // salva alterações
-    }
-
-    // Método transacional para desativar usuário
-    @Transactional
-    public void desativarUsuario(Long id){
-        Usuario usuario = usuarioRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id)); // busca usuário
-
-        usuario.setAtivo(false); // marca usuário como inativo
-
-        usuarioRepository.save(usuario); // salva alteração
+        usuarioRepository.save(usuario);
     }
 }

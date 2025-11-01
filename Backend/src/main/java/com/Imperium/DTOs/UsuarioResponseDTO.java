@@ -2,14 +2,15 @@ package com.Imperium.DTOs;
 
 import java.time.LocalDateTime;
 
-import com.Imperium.Enum.Setor;
+import com.Imperium.Enum.StatusUsuario;
+import com.Imperium.Enum.papelUsuario;
 
 public record UsuarioResponseDTO(
     Long id,
-    String nomeUsuario,
-    String login,
-    boolean ativo,
+    String emailUsuario,
+    papelUsuario papelUsuario,
     LocalDateTime dataCadastro,
     LocalDateTime dataUltimoAcesso,
-    Setor setorUsuario
+    Integer idSetor,
+    StatusUsuario status
 ) {}

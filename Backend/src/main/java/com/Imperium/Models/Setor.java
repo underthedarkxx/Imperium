@@ -2,6 +2,8 @@ package com.Imperium.Models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -9,6 +11,7 @@ import jakarta.persistence.Table;
 @Entity(name = "setor")
 public class Setor {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idSetor", nullable=false)
     private int idSetor ;
     @Column(name = "nomesetor",nullable=false)

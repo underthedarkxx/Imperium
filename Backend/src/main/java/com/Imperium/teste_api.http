@@ -1,71 +1,44 @@
-===============================================================
-SUÍTE DE TESTES PARA A API IMPERIUM - USUÁRIOS
-===============================================================
-Variáveis Globais
-
 @host = http://localhost:8080
 
-################################################################
+###############################################################
+### ETAPA 1: FAZER LOGIN (SALVA O TOKEN AUTOMATICAMENTE)
+###############################################################
 
-# Cria um novo usuário com todos os campos corretos
-POST {{host}}/api/usuarios/registrar
+# @name loginCEO
+POST {{host}}/api/login
 Content-Type: application/json
 
 {
-    "nomeUsuario": "João Silva",
-    "login": "joao.silva",
-    "senha": "Senha123*",
-    "setorUsuario": "Gerente"
+  "emailUsuario": "ceo@imperium.com",
+  "senha": "Admin123*"
 }
 
+###
+### SEPARADOR OBRIGATÓRIO (NÃO APAGUE)
+###
 
-################################################################
+###############################################################
+### ETAPA 2: CRIAR USUÁRIO (USA O TOKEN SALVO)
+###############################################################
 
-#2. CRIAR USUÁRIO - Falha (Login duplicado)
-//Tenta criar um usuário com o mesmo login do usuário já criado.
-
-POST {{host}}/api/usuarios/registrar
+POST {{host}}/api/admin/usuarios
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjZW9AaW1wZXJpdW0uY29tIiwiaWF0IjoxNzYxOTU4MjY1LCJleHAiOjE3NjE5NjE4NjV9.x0eDXCVXZ0YJcXL_5eSp_3mNcOmsD_HPBAcb41-yMyqYpAzpJkcpnfD4_VmDxPgjBAEUqTk8Fq9ZzKHVTU4efg
 Content-Type: application/json
 
 {
-"nomeUsuario": "João Diferente",
-"login": "joao.silva",
-"senha": "Senha123*",
-"setorUsuario": "Colaborador"
+  "emailUsuario": "usuario.automatico@imperium.com",
+  "senha": "SenhaForte123*",
+  "idSetor": 1,
+  "papelUsuario": "Colaborador"
 }
 
-################################################################
-
-#3. CRIAR USUÁRIO - Falha (Nome de usuário duplicado)
-//Tenta criar um usuário com o mesmo nome de usuário do já existente.
-
-POST {{host}}/api/usuarios/registrar
-Content-Type: application/json
-
-{
-"nomeUsuario": "João Silva",
-"login": "joao.diferente",
-"senha": "Senha123*",
-"setorUsuario": "Colaborador"
-}
-
-################################################################
-
-#4. CRIAR USUÁRIO - Falha (Setor não informado)
-//Tenta criar um usuário sem informar o setor.
-
-POST {{host}}/api/usuarios/registrar
-Content-Type: application/json
-
-{
-"nomeUsuario": "Maria Souza",
-"login": "maria.souza",
-"senha": "Senha123*"
-}
-
-################################################################
-
-#5. LISTAR TODOS OS USUÁRIOS
-//Lista todos os usuários cadastrados.
-
+### ETAPA 3: LISTAR TODOS OS USUÁRIOS (Corrigido)
 GET {{host}}/api/usuarios/listar
+# Use a variável 'loginCEO.response.body.token' se seu plugin salvar o token
+Authorization: Bearer {{loginCEO.response.body.token}} 
+Content-Type: application/json
+
+### ETAPA 4: CONTAR O TOTAL DE USUÁRIOS
+GET {{host}}/api/usuarios/contar
+Authorization: Bearer {{loginCEO.response.body.token}}
+Content-Type: application/json

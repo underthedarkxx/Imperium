@@ -8,9 +8,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.Imperium.Enum.StatusUsuario;
 import com.Imperium.Enum.papelUsuario;
 
-import jakarta.persistence.Column; // Importe a interface UserDetails
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -29,7 +30,7 @@ public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idUsuario")
-    private Long id;
+    private Long idUsuario;
 
     @Column(name= "emailUsuario", nullable = false, length = 100)
     private String emailUsuario;
@@ -41,19 +42,23 @@ public class Usuario implements UserDetails {
     @Column(name = "papelUsuario", nullable = false)
     private papelUsuario papelUsuario;
 
-    @Column(name = "dataInicioUsuario", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
+    @Column(name = "dataInicioUsuario", updatable = false, nullable = true)
+    private LocalDateTime dataInicioUsuario;
 
     @Column(name = "ultimaAlteracaoUsuario")
-    private LocalDateTime dataUltimoAcesso;
+    private LocalDateTime ultimaAlteracaoUsuario;
 
     @ManyToOne
     @JoinColumn(name = "idSetor")
     private Setor setor;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statusUsuario", nullable = false)
+    private StatusUsuario statusUsuario;
+
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.statusUsuario == StatusUsuario.Ativo;
     }
 
     @Override
@@ -90,11 +95,11 @@ public class Usuario implements UserDetails {
     // --- GETTERS E SETTERS ---
     
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() { return idUsuario; }
+    public void setId(Long idUsuario) { this.idUsuario = idUsuario; }
 
     public String getEmailUsuario(){ return emailUsuario;}
-    public void setNomeUsuario( String emailUsuario){this.emailUsuario = emailUsuario;}
+    public void setEmailUsuario( String emailUsuario){this.emailUsuario = emailUsuario;}
 
     public String getSenhaUsuario() { return senhaUsuario; }
     public void setSenhaUsuario(String senhaUsuario) { this.senhaUsuario = senhaUsuario; }
@@ -102,17 +107,21 @@ public class Usuario implements UserDetails {
     public papelUsuario getPapelUsuario() { return papelUsuario; }
     public void setPapelUsuario(papelUsuario papelUsuario) { this.papelUsuario = papelUsuario; }
 
-    public LocalDateTime getDataCadastro() { return dataCadastro; }
-    public void setDataCadastro(LocalDateTime dataCadastro) { this.dataCadastro = dataCadastro; }
+    public LocalDateTime getDataCadastro() { return dataInicioUsuario; }
+    public void setDataCadastro(LocalDateTime dataInicioUsuario) { this.dataInicioUsuario = dataInicioUsuario; }
 
-    public LocalDateTime getDataUltimoAcesso() { return dataUltimoAcesso; }
-    public void setDataUltimoAcesso(LocalDateTime dataUltimoAcesso) { this.dataUltimoAcesso = dataUltimoAcesso; }
+    public LocalDateTime getDataUltimoAcesso() { return ultimaAlteracaoUsuario; }
+    public void setDataUltimoAcesso(LocalDateTime ultimaAlteracaoUsuario) { this.ultimaAlteracaoUsuario = ultimaAlteracaoUsuario; }
 
-    public Setor getIdSetor(){return setor;}
-    public void setIdSetor(Setor setor){ this.setor = setor;}
+    public Setor getSetor(){return setor;}
+    public void setSetor(Setor setor){ this.setor = setor;}
+
+    public StatusUsuario getStatusUsuario(){return statusUsuario;}
+    public void setStatusUsuario(StatusUsuario statusUsuario){ this.statusUsuario = statusUsuario;}
 
     @PrePersist
     protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
+        this.dataInicioUsuario = LocalDateTime.now();
+        this.statusUsuario = StatusUsuario.Ativo;
     }
 }
