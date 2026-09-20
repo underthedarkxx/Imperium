@@ -48,7 +48,12 @@ public class DataInitializer implements ApplicationRunner {
         if (usuarioRepository.findByEmailUsuario(emailAdmin).isEmpty()) {
             Usuario adminUser = new Usuario();
             adminUser.setEmailUsuario(emailAdmin);
-            adminUser.setSenhaUsuario(passwordEncoder.encode("Admin123*"));
+            String senhaAdmin = System.getenv("ADMIN_PASSWORD");
+            if (senhaAdmin == null || senhaAdmin.isBlank()) {
+                throw new IllegalStateException(
+                    "Defina a variavel de ambiente ADMIN_PASSWORD antes de subir a aplicacao.");
+            }
+            adminUser.setSenhaUsuario(passwordEncoder.encode(senhaAdmin));
             adminUser.setPapelUsuario(papelUsuario.CEO);
             adminUser.setSetor(setorAdmin);
             adminUser.setStatusUsuario(StatusUsuario.Ativo);
