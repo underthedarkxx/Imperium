@@ -1,3 +1,5 @@
+@senhaAdmin = COLOQUE_A_SENHA_AQUI_E_NAO_COMMITE
+
 @host = http://localhost:8080
 
 ###############################################################
@@ -10,7 +12,7 @@ Content-Type: application/json
 
 {
   "emailUsuario": "ceo@imperium.com",
-  "senha": "Admin123*"
+  "senha": "{{senhaAdmin}}"
 }
 
 ###
